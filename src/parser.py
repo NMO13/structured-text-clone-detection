@@ -14,7 +14,7 @@ from pyparsing import (
 
 
 
-letter = alphas
+letter = Word(alphas)
 digit = nums
 octal_digit = (Literal("0") | Literal("1") | Literal("2") | Literal("3") | Literal("4") | Literal("5") | Literal("6") | Literal("7"))
 
@@ -180,7 +180,7 @@ fb_name_decl = fb_name_list + ":" + identifier + Optional(":=" + structure_initi
 add_operator = Literal("+") | Literal("-")
 
 
-primary_expression = constant | enumerated_value | variable | "(" + expression + ")" | + identifier + "(" + param_assignment + ZeroOrMore("," + param_assignment) + ")"
+primary_expression = constant | enumerated_value | variable | "(" + expression + ")" | identifier + "(" + param_assignment + ZeroOrMore("," + param_assignment) + ")"
 unary_operator = Literal("-") | Literal("NOT")
 unary_expression = Optional(unary_operator) + primary_expression
 power_expression = unary_expression + ZeroOrMore("**" + unary_expression)
@@ -257,7 +257,7 @@ external_var_declarations = "VAR_EXTERNAL" + Optional("CONSTANT") + external_dec
 
 
 global_var_decl = global_var_spec + ":" + Optional(located_var_spec_init | identifier)
-global_var_declarations = "VAR_GLOBAL" + Optional("CONSTANT" | "RETAIN") + global_var_decl + ";" + ZeroOrMore(global_var_decl + ";") + "END_VAR"
+global_var_declarations = "VAR_GLOBAL" + Optional(Keyword("CONSTANT") | Keyword("RETAIN")) + global_var_decl + ";" + ZeroOrMore(global_var_decl + ";") + "END_VAR"
 
 
 
@@ -266,7 +266,7 @@ global_var_declarations = "VAR_GLOBAL" + Optional("CONSTANT" | "RETAIN") + globa
 var_spec = simple_specification | subrange_specification | enumerated_specification | array_specification | structure_type_name | ("STRING" + Optional("[" + integer + "]") ) | ("WSTRING" + Optional("[" + integer + "]"))
 incompl_location = "AT" + "%" + (Literal("I") | Literal("Q") | Literal("M")) + "*"
 incompl_located_var_decl = variable_name + incompl_location + ":" + var_spec
-incompl_located_var_declarations = "VAR" + Optional("RETAIN"|"NON_RETAIN") + incompl_located_var_decl + ";" + ZeroOrMore(incompl_located_var_decl + ";") + "END_VAR"
+incompl_located_var_declarations = "VAR" + Optional(Keyword("RETAIN") | Keyword("NON_RETAIN")) + incompl_located_var_decl + ";" + ZeroOrMore(incompl_located_var_decl + ";") + "END_VAR"
 
 
 
@@ -300,9 +300,9 @@ instance_specific_init = resource_name + "." + program_name + "." + ZeroOrMore(f
 
 il_assign_operator = variable_name + ":="
 il_assign_out_operator = Optional("NOT") + variable_name + "=>"
-il_call_operator = "CAL" | "CALC" | "CALCN"
-il_return_operator = "RET" | "RETC" | "RETCN"
-il_jump_operator = "JMP" | "JMPC" | "JMPCN"
+il_call_operator = Keyword("CAL") | Keyword("CALC") | Keyword("CALCN")
+il_return_operator = Keyword("RET") | Keyword("RETC") | Keyword("RETCN")
+il_jump_operator = Keyword("JMP") | Keyword("JMPC") | Keyword("JMPCN")
 EOL = "\n"
 
 il_simple_instruction = Forward()
