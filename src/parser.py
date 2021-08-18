@@ -326,12 +326,22 @@ il_fb_call = il_call_operator + fb_name + Optional("(" + (EOL + ZeroOrMore(EOL) 
 il_instruction = Optional(label +":") + Optional(il_simple_operation | il_expression | il_jump_operation | il_fb_call | il_formal_funct_call | il_return_operator) + EOL + ZeroOrMore(EOL)
 instruction_list = il_instruction + ZeroOrMore(il_instruction)
 
+access_name = identifier
+
 var2_init_decl = var1_init_decl | array_var_init_decl | structured_var_init_decl | string_var_declaration
 function_body = instruction_list | statement_list
 function_var_decls = "VAR" + Optional("CONSTANT") + var2_init_decl + ";" + ZeroOrMore(var2_init_decl + ";") + "END_VAR"
 derived_function_name = identifier
 io_var_declarations = input_declarations | output_declarations | input_output_declarations
-function_declaration = "FUNCTION" + derived_function_name + ":" + (elementary_type_name | derived_type_name) + ZeroOrMore(io_var_declarations | function_var_decls ) + function_body + "END_FUNCTION"
+temp_var_decls = "VAR_TEMP" + temp_var_decl + ";" + ZeroOrMore(temp_var_decl + ";") + "END_VAR"
+non_retentive_var_decls = "VAR" + "NON_RETAIN" + var_init_decl + ";" + ZeroOrMore(var_init_decl + ";") + "END_VAR"
+function_block_body = instruction_list | statement_list
+other_var_declarations = external_var_declarations | var_declarations | retentive_var_declarations | non_retentive_var_decls | temp_var_decls | incompl_located_var_declarations
 program_configuration = "PROGRAM" + Optional(Keyword("RETAIN") | Keyword("NON_RETAIN")) + program_name + Optional("WITH" + task_name) + ":" + program_type_name + Optional("(" + prog_conf_elements + ")")
+program_access_decl = access_name + ":" + symbolic_variable + ":" + non_generic_type_name + Optional(direction)
+program_access_decls = "VAR_ACCESS" + program_access_decl + ";" + ZeroOrMore(program_access_decl + ";") + "END_VAR"
 
-parser = function_declaration | program_configuration
+function_declaration = "FUNCTION" + derived_function_name + ":" + (elementary_type_name | derived_type_name) + ZeroOrMore(io_var_declarations | function_var_decls ) + function_body + "END_FUNCTION"
+program_declaration = "PROGRAM" + program_type_name + ZeroOrMore( io_var_declarations | other_var_declarations | located_var_declarations | program_access_decls ) + function_block_body +"END_PROGRAM"
+
+parser = function_declaration | program_declaration
