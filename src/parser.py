@@ -19,7 +19,7 @@ digit = nums
 octal_digit = (Literal("0") | Literal("1") | Literal("2") | Literal("3") | Literal("4") | Literal("5") | Literal("6") | Literal("7"))
 
 hex_digit = (digit | Literal("A")| Literal("B") | Literal("C") | Literal("D") | Literal("E") | Literal("F"))
-identifier = (letter | (Literal("_") + (letter | digit))) + ZeroOrMore(Optional("_") + (letter | digit))
+identifier = Word(alphanums+"_", alphanums+'_'+"#")
 
 integer = digit + ZeroOrMore(Optional("_" + digit))
 signed_integer = Optional(Literal("+") | Literal("-")) + integer
@@ -138,7 +138,7 @@ structure_type_declaration = structure_type_name + ":" + structure_specification
 type_declaration = single_element_type_declaration | array_type_declaration | structure_type_declaration | string_type_declaration
 data_type_declaration = Keyword("TYPE") + type_declaration + ";" + ZeroOrMore(type_declaration + ";") + Keyword("END_TYPE")
 
-variable = direct_variable | symbolic_variable
+variable = identifier#direct_variable | symbolic_variable
 
 statement = Forward()
 
