@@ -320,4 +320,20 @@ END_PROGRAM"""
 
 ast_builder.parse(text)
 
+##############
+
+text = """
+PROGRAM main
+VAR_INPUT
+i : INT;
+END_VAR
+(* adjust position if end switch is active *)
+IF SWITCH_AVAIL AND END_POS THEN
+	POS := SEL_BYTE(X := POS + BYTE#127 * 4, BYTE#0, BYTE#255+7);
+	next_cal := tx + T_CAL;
+END_IF;
+
+END_PROGRAM"""
+
+ast_builder.parse(text)
 
