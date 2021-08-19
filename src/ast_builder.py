@@ -1,6 +1,6 @@
 class ASTBuilder():
     def __init__(self):
-        from src import parser
+        from src.parser import parser
         self.parser = parser
 
     def parse(self, text):

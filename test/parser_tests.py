@@ -1,4 +1,4 @@
-from src.parser import parser
+from structured_text import parser
 text = """
 PROGRAM main
 VAR_INPUT
@@ -279,7 +279,8 @@ PROGRAM main
 VAR_INPUT
 i : INT;
 END_VAR
-ramp(OUT :=);
+ramp(OUT := 3);
+ramp(OUT := 4, RUN := 1);
 END_PROGRAM"""
 
 parser.parseString(text)
