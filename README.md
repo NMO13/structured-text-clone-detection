@@ -1,2 +1,2 @@
-# structured-text-parser
-A parser for structured text programs.
+# structured-text-clone-detection
+Finds code clones.
