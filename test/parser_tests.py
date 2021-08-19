@@ -337,3 +337,17 @@ END_PROGRAM"""
 
 ast_builder.parse(text)
 
+##############
+
+text = """
+PROGRAM main
+VAR_INPUT
+i : INT;
+END_VAR
+(* adjust position if end switch is active *)
+IF DINT_TO_TIME(ABS(TIME_TO_DINT(ramp.TR) - TIME_TO_DINT(ramp.TF)) * DINT#10) > T_RUN THEN error := TRUE; END_IF;
+
+END_PROGRAM"""
+
+ast_builder.parse(text)
+
