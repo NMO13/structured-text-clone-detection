@@ -20,7 +20,7 @@ mulop = Literal("*") | Literal("/")
 addop = Literal("+") | Literal("-")
 var_decl = (
     oneOf("VAR_INPUT VAR_OUTPUT VAR_IN_OUT VAR")
-    + ZeroOrMore(designator + Literal(":") + oneOf("INT BOOL BYTE TIME _RMP_NEXT T_PLC_MS") + Optional(assign_op + expression) + semicolon)
+    + ZeroOrMore(designator + Literal(":") + ident + Optional(assign_op + expression) + semicolon)
     + Keyword("END_VAR")
 )
 relop = (
@@ -31,8 +31,9 @@ relop = (
     | Literal("<")
     | Literal("=")
 )
-condfact = Optional("NOT") + Optional("(") + expression + Optional(")") + Optional(relop + expression)
-condterm = condfact + ZeroOrMore("AND" + condfact)
+booleanop = Literal("AND") | Literal("OR")
+condfact = Optional("NOT") + Optional("(") + expression + Optional(relop + expression) + Optional(")")
+condterm = Optional("(") + condfact + ZeroOrMore("AND" + condfact) + Optional(")")
 condition = condterm + ZeroOrMore(Literal("OR") + condterm)
 
 arithmeticop = Literal("+") | Literal("-") | Literal("*") | Literal("/")
@@ -41,11 +42,11 @@ param = Forward()
 actpars = Literal("(") + Optional(param + ZeroOrMore("," + param)) + Literal(")")
 factor = (designator + Optional(actpars)) | Word(nums) | Literal("(") + expression + Literal(")")
 term = factor + ZeroOrMore(mulop + factor)
-param << (expression + Optional(Optional(assign_op + expression) + Optional((relop | arithmeticop) + expression)))
+param << (expression + Optional(Optional(assign_op + expression) + ZeroOrMore((relop | arithmeticop | booleanop + Optional("NOT")) + expression)))
 expression << (Optional("-") + term + ZeroOrMore(addop + term))
 statement = Forward()
 block = ZeroOrMore(statement)
-count_condition = designator + assign_op + Word(nums) + Keyword("TO") + Word(nums)
+count_condition = Literal("(") + designator + assign_op + Word(nums) + Keyword("TO") + Word(nums) + Literal(")")
 caseblock = ident + Literal(":") + block
 statement << (
     (
@@ -60,9 +61,7 @@ statement << (
     | (designator + ((assign_op + expression) | actpars) + semicolon)
     | (
         Keyword("FOR")
-        + Literal("(")
         + count_condition
-        + Literal(")")
         + Keyword("DO")
         + block
         + Keyword("END_FOR")
@@ -70,9 +69,7 @@ statement << (
     )
     | (
         Keyword("WHILE")
-        + Literal("(")
         + condition
-        + Literal(")")
         + Keyword("DO")
         + block
         + Keyword("END_WHILE")
@@ -80,9 +77,7 @@ statement << (
     )
     | (
         Keyword("IF")
-        + Optional(Literal("("))
         + condition
-        + Optional(Literal(")"))
         + Keyword("THEN")
         + block
         + ZeroOrMore(Keyword("ELSIF") + Optional(Literal("(")) + condition + Optional(Literal(")")) + Keyword("THEN") + block)
@@ -98,6 +93,8 @@ statement << (
         + Optional(Keyword("ELSE") + block)
         + Keyword("END_CASE")
         + semicolon
+    ) | (
+        Keyword("RETURN") + semicolon
     )
 )
 

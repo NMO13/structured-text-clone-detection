@@ -351,3 +351,59 @@ END_PROGRAM"""
 
 ast_builder.parse(text)
 
+##############
+
+text = """
+PROGRAM main
+VAR_INPUT
+i : INT;
+END_VAR
+(* adjust position if end switch is active *)
+	IF (self_act_cycle > T#0s) AND (tx >= 5) THEN
+	END_IF;
+END_PROGRAM"""
+
+ast_builder.parse(text)
+
+##############
+
+text = """
+PROGRAM main
+VAR_INPUT
+i : INT;
+END_VAR
+(* adjust position if end switch is active *)
+IF (status > BYTE#0 AND status < BYTE#100) THEN 
+  RETURN;
+END_IF;
+END_PROGRAM"""
+
+ast_builder.parse(text)
+
+##############
+
+text = """
+PROGRAM main
+VAR_INPUT
+i : INT;
+END_VAR
+(* adjust position if end switch is active *)
+timer1(in := flame AND in AND motor AND coil1 AND NOT coil2, SECONDS := runtime1, CYCLES := cycles);
+timer2(in := flame AND in AND motor AND coil1 AND coil2, SECONDS := runtime2, CYCLES := cycles2);
+END_PROGRAM"""
+
+ast_builder.parse(text)
+
+##############
+
+text = """
+PROGRAM main
+VAR_INPUT
+i : INT;
+END_VAR
+(* adjust position if end switch is active *)
+timer2(in := flame AND in AND motor AND coil1 AND coil2, SECONDS := runtime2, CYCLES := cycles2);
+END_PROGRAM"""
+
+ast_builder.parse(text)
+
