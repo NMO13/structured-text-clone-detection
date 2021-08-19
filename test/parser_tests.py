@@ -1,4 +1,5 @@
-from structured_text import parser
+from src.ast_builder import ASTBuilder
+ast_builder = ASTBuilder()
 text = """
 PROGRAM main
 VAR_INPUT
@@ -6,7 +7,7 @@ i : INT;
 END_VAR
 END_PROGRAM"""
 
-parser.parseString(text)
+ast_builder.parse(text)
 ################
 
 text = """
@@ -16,7 +17,7 @@ i : INT;
 END_VAR
 END_PROGRAM"""
 
-parser.parseString(text)
+ast_builder.parse(text)
 
 ###############
 
@@ -30,7 +31,7 @@ i := 0;
 j := 3;
 END_PROGRAM"""
 
-parser.parseString(text)
+ast_builder.parse(text)
 
 ##############
 
@@ -43,7 +44,7 @@ x.y := 0;
 u.v := 3;
 END_PROGRAM"""
 
-parser.parseString(text)
+ast_builder.parse(text)
 
 ##############
 
@@ -59,7 +60,7 @@ UNTIL i < j+4;
 END_REPEAT;
 END_PROGRAM"""
 
-parser.parseString(text)
+ast_builder.parse(text)
 
 ##############
 
@@ -70,7 +71,7 @@ avg := avg + 4;
 END_FOR;
 END_PROGRAM
 """
-parser.parseString(text)
+ast_builder.parse(text)
 
 ##############
 
@@ -88,7 +89,7 @@ END_WHILE;
 avg := avg / 5;
 END_PROGRAM"""
 
-parser.parseString(text)
+ast_builder.parse(text)
 
 ##############
 
@@ -100,7 +101,7 @@ END_VAR
 i := 3 + f[5];
 END_PROGRAM"""
 
-parser.parseString(text)
+ast_builder.parse(text)
 
 ##############
 
@@ -114,7 +115,7 @@ i := 3;
 END_IF;
 END_PROGRAM"""
 
-parser.parseString(text)
+ast_builder.parse(text)
 
 ##############
 
@@ -130,7 +131,7 @@ i := 3;
 END_IF;
 END_PROGRAM"""
 
-parser.parseString(text)
+ast_builder.parse(text)
 
 ##############
 
@@ -144,7 +145,7 @@ i := 3;
 END_IF;
 END_PROGRAM"""
 
-parser.parseString(text)
+ast_builder.parse(text)
 
 ##############
 
@@ -160,7 +161,7 @@ ELSE
 END_IF;
 END_PROGRAM"""
 
-parser.parseString(text)
+ast_builder.parse(text)
 
 ##############
 
@@ -180,7 +181,7 @@ ELSE
 END_IF;
 END_PROGRAM"""
 
-parser.parseString(text)
+ast_builder.parse(text)
 
 ##############
 
@@ -223,7 +224,7 @@ CASE state OF
 END_CASE;
 END_PROGRAM"""
 
-parser.parseString(text)
+ast_builder.parse(text)
 
 ##############
 text = """
@@ -245,7 +246,7 @@ CASE state OF
 END_CASE;
 END_PROGRAM"""
 
-parser.parseString(text)
+ast_builder.parse(text)
 
 ##############
 
@@ -257,7 +258,7 @@ END_VAR
 x := foo();
 END_PROGRAM"""
 
-parser.parseString(text)
+ast_builder.parse(text)
 
 ##############
 
@@ -270,7 +271,7 @@ x := foo(3);
 x := foo(3, i);
 END_PROGRAM"""
 
-parser.parseString(text)
+ast_builder.parse(text)
 
 ##############
 
@@ -283,4 +284,40 @@ ramp(OUT := 3);
 ramp(OUT := 4, RUN := 1);
 END_PROGRAM"""
 
-parser.parseString(text)
+ast_builder.parse(text)
+
+##############
+
+text = """
+PROGRAM main
+VAR_INPUT
+i : INT;
+END_VAR
+(* adjust position if end switch is active *)
+IF SWITCH_AVAIL AND END_POS THEN
+	POS := SEL_BYTE(POS > BYTE#127, BYTE#0, BYTE#255);
+	next_cal := tx + T_CAL;
+END_IF;
+
+END_PROGRAM"""
+
+ast_builder.parse(text)
+
+##############
+
+text = """
+PROGRAM main
+VAR_INPUT
+i : INT;
+END_VAR
+(* adjust position if end switch is active *)
+IF SWITCH_AVAIL AND END_POS THEN
+	POS := SEL_BYTE(X := POS > BYTE#127, BYTE#0, BYTE#255);
+	next_cal := tx + T_CAL;
+END_IF;
+
+END_PROGRAM"""
+
+ast_builder.parse(text)
+
+
