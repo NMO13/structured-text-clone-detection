@@ -23,10 +23,6 @@ var_decl = (
     + ZeroOrMore(designator + Literal(":") + oneOf("INT BOOL BYTE TIME _RMP_NEXT T_PLC_MS") + Optional(assign_op + expression) + semicolon)
     + Keyword("END_VAR")
 )
-actpars = Literal("(") + Optional((expression + Optional(assign_op + expression)) + ZeroOrMore("," + expression + Optional(assign_op + expression))) + Literal(")")
-factor = (designator + Optional(actpars)) | Word(nums) | Literal("(") + expression + Literal(")")
-term = factor + ZeroOrMore(mulop + factor)
-expression << (Optional("-") + term + ZeroOrMore(addop + term))
 relop = (
     Literal(">=")
     | Literal(">")
@@ -38,6 +34,15 @@ relop = (
 condfact = Optional("NOT") + Optional("(") + expression + Optional(")") + Optional(relop + expression)
 condterm = condfact + ZeroOrMore("AND" + condfact)
 condition = condterm + ZeroOrMore(Literal("OR") + condterm)
+
+arithmeticop = Literal("+") | Literal("-") | Literal("*") | Literal("/")
+
+param = Forward()
+actpars = Literal("(") + Optional(param + ZeroOrMore(",", param)) + Literal(")")
+factor = (designator + Optional(actpars)) | Word(nums) | Literal("(") + expression + Literal(")")
+term = factor + ZeroOrMore(mulop + factor)
+param << (designator + Optional(Optional(assign_op + expression) + (relop | arithmeticop) + expression))
+expression << (Optional("-") + term + ZeroOrMore(addop + term))
 statement = Forward()
 block = ZeroOrMore(statement)
 count_condition = designator + assign_op + Word(nums) + Keyword("TO") + Word(nums)

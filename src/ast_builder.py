@@ -9,5 +9,5 @@ class ASTBuilder():
 
     def remove_comments(self, text):
         import re
-        res = re.sub(r"(\(\*[^\(]*)\*\)", " ", text)
+        res = re.sub(r"\(\*([\s\S]*?)\*\)", " ", text)
         return res
