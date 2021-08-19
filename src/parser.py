@@ -8,19 +8,23 @@ from pyparsing import (
     Optional,
     nums,
     Forward,
-    oneOf
+    oneOf,
 )
 
 semicolon = Literal(";")
-ident = Word(alphanums+"_", alphanums+'_'+"#")
+ident = Word(alphanums + "_", alphanums + "_" + "#")
 expression = Forward()
-designator = ident + Optional((Literal(".") + ident) | (Literal("[") + expression + Literal("]")))
+designator = ident + Optional(
+    (Literal(".") + ident) | (Literal("[") + expression + Literal("]"))
+)
 assign_op = Literal(":=")
 mulop = Literal("*") | Literal("/")
 addop = Literal("+") | Literal("-")
 var_decl = (
     oneOf("VAR_INPUT VAR_OUTPUT VAR_IN_OUT VAR")
-    + ZeroOrMore(designator + Literal(":") + ident + Optional(assign_op + expression) + semicolon)
+    + ZeroOrMore(
+        designator + Literal(":") + ident + Optional(assign_op + expression) + semicolon
+    )
     + Keyword("END_VAR")
 )
 relop = (
@@ -32,7 +36,13 @@ relop = (
     | Literal("=")
 )
 booleanop = Literal("AND") | Literal("OR")
-condfact = Optional("NOT") + Optional("(") + expression + Optional(relop + expression) + Optional(")")
+condfact = (
+    Optional("NOT")
+    + Optional("(")
+    + expression
+    + Optional(relop + expression)
+    + Optional(")")
+)
 condterm = Optional("(") + condfact + ZeroOrMore("AND" + condfact) + Optional(")")
 condition = condterm + ZeroOrMore(Literal("OR") + condterm)
 
@@ -40,13 +50,31 @@ arithmeticop = Literal("+") | Literal("-") | Literal("*") | Literal("/")
 
 param = Forward()
 actpars = Literal("(") + Optional(param + ZeroOrMore("," + param)) + Literal(")")
-factor = (designator + Optional(actpars)) | Word(nums) | Literal("(") + expression + Literal(")")
+factor = (
+    (designator + Optional(actpars))
+    | Word(nums)
+    | Literal("(") + expression + Literal(")")
+)
 term = factor + ZeroOrMore(mulop + factor)
-param << (expression + Optional(Optional(assign_op + expression) + ZeroOrMore((relop | arithmeticop | booleanop + Optional("NOT")) + expression)))
+param << (
+    expression
+    + Optional(
+        Optional(assign_op + expression)
+        + ZeroOrMore((relop | arithmeticop | booleanop + Optional("NOT")) + expression)
+    )
+)
 expression << (Optional("-") + term + ZeroOrMore(addop + term))
 statement = Forward()
 block = ZeroOrMore(statement)
-count_condition = Literal("(") + designator + assign_op + Word(nums) + Keyword("TO") + Word(nums) + Literal(")")
+count_condition = (
+    Literal("(")
+    + designator
+    + assign_op
+    + Word(nums)
+    + Keyword("TO")
+    + Word(nums)
+    + Literal(")")
+)
 caseblock = ident + Literal(":") + block
 statement << (
     (
@@ -80,22 +108,29 @@ statement << (
         + condition
         + Keyword("THEN")
         + block
-        + ZeroOrMore(Keyword("ELSIF") + Optional(Literal("(")) + condition + Optional(Literal(")")) + Keyword("THEN") + block)
+        + ZeroOrMore(
+            Keyword("ELSIF")
+            + Optional(Literal("("))
+            + condition
+            + Optional(Literal(")"))
+            + Keyword("THEN")
+            + block
+        )
         + Optional(Keyword("ELSE") + block)
         + Keyword("END_IF")
         + semicolon
     )
     | (
         Keyword("CASE")
-        + designator + Optional(actpars)
+        + designator
+        + Optional(actpars)
         + Keyword("OF")
         + OneOrMore(caseblock)
         + Optional(Keyword("ELSE") + block)
         + Keyword("END_CASE")
         + semicolon
-    ) | (
-        Keyword("RETURN") + semicolon
     )
+    | (Keyword("RETURN") + semicolon)
 )
 
 

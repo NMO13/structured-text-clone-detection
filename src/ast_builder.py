@@ -1,6 +1,7 @@
-class ASTBuilder():
+class ASTBuilder:
     def __init__(self):
         from src.parser import parser
+
         self.parser = parser
 
     def parse(self, text):
@@ -9,5 +10,6 @@ class ASTBuilder():
 
     def remove_comments(self, text):
         import re
+
         res = re.sub(r"\(\*([\s\S]*?)\*\)", " ", text)
         return res
