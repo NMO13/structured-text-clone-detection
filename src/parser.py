@@ -63,7 +63,7 @@ param << (
         + ZeroOrMore((relop | arithmeticop | booleanop + Optional("NOT")) + expression)
     )
 )
-expression << (Optional("-") + term + ZeroOrMore(addop + term))
+expression << (Optional("-") + term + ZeroOrMore(addop + Optional("-") + term))
 statement = Forward()
 block = ZeroOrMore(statement)
 count_condition = (
@@ -135,9 +135,9 @@ statement << (
 
 
 parser = (
-    oneOf("PROGRAM FUNCTION_BLOCK")
-    + ident
+    Keyword("PROGRAM") |  Keyword("FUNCTION_BLOCK") | Keyword("FUNCTION")
+    + ident + Optional(":" + ident)
     + ZeroOrMore(var_decl)
     + ZeroOrMore(statement)
-    + oneOf("END_PROGRAM END_FUNCTION_BLOCK")
+    + oneOf("END_PROGRAM END_FUNCTION_BLOCK END_FUNCTION")
 )

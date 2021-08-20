@@ -407,3 +407,12 @@ END_PROGRAM"""
 
 ast_builder.parse(text)
 
+##############
+
+text = """
+FUNCTION WATER_DENSITY:REAL
+WATER_DENSITY := (999.83952 + 16.952577*T + -7.9905127E-3*T2 + -4.6241757E-5*T2*T + 1.0584601E-7*T4 + -2.8103006E-10*T4*T) / (1.0 + 0.0168872*T);
+END_FUNCTION"""
+
+ast_builder.parse(text)
+
