@@ -5,11 +5,29 @@ class ASTBuilder:
         self.parser = parser
 
     def parse(self, text):
+        text = self.remove_description(text)
         text = self.remove_comments(text)
         self.parser.parseString(text)
 
+    def remove_description(self, text):
+        descriptionStartComment = "(*@KEY@:DESCRIPTION*)"
+        descriptionEndComment = "(*@KEY@:END_DESCRIPTION*)"
+
+        descriptionStart = text.find(descriptionStartComment)
+        descriptionEnd = text.find(descriptionEndComment)
+        
+        initToDelete = descriptionStart + len(descriptionStartComment)
+        endToDelete  = descriptionEnd
+        
+        subString1 = text[:initToDelete]
+        subString2 = text[endToDelete:-1]
+        
+        text = subString1 + subString2
+        return text
+        
     def remove_comments(self, text):
         import re
-
+        
         res = re.sub(r"\(\*([\s\S]*?)\*\)", " ", text)
+
         return res

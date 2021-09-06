@@ -1,0 +1,13 @@
+
+*.pyc
+.ipynb_checkpoints/readfolder-checkpoint.py
+.ipynb_checkpoints/README-checkpoint.md
+src/.ipynb_checkpoints/ast_builder-checkpoint.py
+src/.ipynb_checkpoints/parser-checkpoint.py
+test/.ipynb_checkpoints/__init__-checkpoint.py
+test/.ipynb_checkpoints/actuator_2p-checkpoint.py
+test/.ipynb_checkpoints/actuator_3p-checkpoint.py
+test/.ipynb_checkpoints/burner-checkpoint.py
+test/.ipynb_checkpoints/wct-checkpoint.py
+test/__init__.py
+folderconfig.py
