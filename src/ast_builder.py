@@ -15,6 +15,8 @@ class ASTBuilder:
 
         descriptionStart = text.find(descriptionStartComment)
         descriptionEnd = text.find(descriptionEndComment)
+        if descriptionStart == -1 or descriptionEnd == -1:
+            return text
 
         initToDelete = descriptionStart + len(descriptionStartComment)
         endToDelete = descriptionEnd
