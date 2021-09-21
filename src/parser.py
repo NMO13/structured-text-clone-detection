@@ -135,8 +135,11 @@ statement << (
 
 
 parser = (
-    Keyword("PROGRAM") |  Keyword("FUNCTION_BLOCK") | Keyword("FUNCTION")
-    + ident + Optional(":" + ident)
+    Keyword("PROGRAM")
+    | Keyword("FUNCTION_BLOCK")
+    | Keyword("FUNCTION")
+    + ident
+    + Optional(":" + ident)
     + ZeroOrMore(var_decl)
     + ZeroOrMore(statement)
     + oneOf("END_PROGRAM END_FUNCTION_BLOCK END_FUNCTION")

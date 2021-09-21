@@ -15,19 +15,19 @@ class ASTBuilder:
 
         descriptionStart = text.find(descriptionStartComment)
         descriptionEnd = text.find(descriptionEndComment)
-        
+
         initToDelete = descriptionStart + len(descriptionStartComment)
-        endToDelete  = descriptionEnd
-        
+        endToDelete = descriptionEnd
+
         subString1 = text[:initToDelete]
         subString2 = text[endToDelete:-1]
-        
+
         text = subString1 + subString2
         return text
-        
+
     def remove_comments(self, text):
         import re
-        
+
         res = re.sub(r"\(\*([\s\S]*?)\*\)", " ", text)
 
         return res
