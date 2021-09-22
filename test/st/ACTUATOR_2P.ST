@@ -1,4 +1,3 @@
-text = """
 (*@PROPERTIES_EX@
 TYPE: POU
 LOCALE: 0
@@ -107,8 +106,3 @@ hm	24. jan. 2009	rev 2.1
 *)
 (*@KEY@: END_WORKSHEET *)
 END_FUNCTION_BLOCK
-"""
-
-from src.ast_builder import ASTBuilder
-creator = ASTBuilder()
-creator.parse(text)

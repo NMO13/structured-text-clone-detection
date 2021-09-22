@@ -13,6 +13,7 @@ from pyparsing import (
     Suppress,
     Combine,
     alphanums,
+QuotedString
 )
 
 
@@ -67,6 +68,9 @@ actpars = (
     + Literal(")").setParseAction(aw("METHOD_MARKER"))
 )
 
+single_byte_character = Literal("\\") + Literal("\'")
+double_byte_character = Literal("\"")
+
 primary_expression = (
     Combine(oneOf("BYTE WORD DWORD LWORD SINT INT DINT LINT USINT UINT UDINT ULINT REAL LREAL DATE TIME_OF_DAY TOD DATE_AND_TIME DT BOOL BYTE T TIME t") + Literal('#') + Word(alphanums + "_" + "-" + '#') + Optional(
             Literal(".")
@@ -89,6 +93,7 @@ primary_expression = (
         + expression
         + Literal(")").setParseAction(aw("MARKER"))
     )
+    | (QuotedString("\"") | QuotedString("\'"))
 )
 
 param << (

@@ -1,4 +1,23 @@
-text = """
+(*@PROPERTIES_EX@
+TYPE: POU
+LOCALE: 0
+IEC_LANGUAGE: ST
+PLC_TYPE: independent
+PROC_TYPE: independent
+GROUP: ACTUATORS
+*)
+(*@KEY@:DESCRIPTION*)
+version 1.4		21. oct. 2008
+programmer 		oscat
+tested BY		oscat
+
+actuator_pump is a pump interface which can be controlled by an input in and an input manual.
+in or manual high turns the pump output on.
+a rst input is used to reset the runtime counters.
+when the pump was not active for a time run_every the actuator turns on the pump automatically for min_ontime.
+two setup variables min_ontime and min_offtime guarantee a minimum runtime and offtime of the pump.
+the units are hours and the output type is real to prevent from overfow.
+(*@KEY@:END_DESCRIPTION*)
 FUNCTION_BLOCK ACTUATOR_PUMP
 
 (*Group:Default*)
@@ -84,8 +103,3 @@ hm	21. oct. 2008	rev 1.4
 *)
 (*@KEY@: END_WORKSHEET *)
 END_FUNCTION_BLOCK
-"""
-
-from src.ast_builder import ASTBuilder
-creator = ASTBuilder()
-creator.parse(text)

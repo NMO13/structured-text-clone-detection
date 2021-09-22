@@ -1,4 +1,37 @@
-text = """
+(*@PROPERTIES_EX@
+TYPE: POU
+LOCALE: 0
+IEC_LANGUAGE: ST
+PLC_TYPE: independent
+PROC_TYPE: independent
+GROUP: ACTUATORS
+*)
+(*@KEY@:DESCRIPTION*)
+version 2.0	28. jan 2010
+programmer 	hugo
+tested by		oscat
+
+actuator_3P is an interface for a 3 point actuator.
+a 3P actuator is a motor with 2 directions that drives a valve or flap. the position of the valve or flap is controlled by runtime of the motor foreward or backward.
+the available inputs are:
+IN specifies the position of the actuator, 0 = 0% and 255 = 100%.
+an END_POS input is available for an end_pos switch, this switch indicates the valve or flap to be at either 0% or 100%
+a TEST input can at any time start a diag cycle which turns the motor towards the 0% position, then measures the runtime to 100% and then the runtime to 0%
+these runtimes are stored and used for absolute positioning of the motor during normal operation. this feature is only avaliable with an END_POS switch connected to the input.
+a setup variable T_DIAG can be used to specify how often the actuator repeates this auto_diag cycle automatically.
+at power on a diag cycle is perfomed automatically.
+a time of 0 for T_DIAG means auto diag is never performed.
+
+the outputs out1 and out2 are for the two directions of the motor.
+a pos output indicates the simulated position of the actuator during operation.
+a error output is activated when the specified max_runtime is reached by any direction during debug without an end_switch to become active.
+also when the up and down direction differs by more then 10% the error output is set.
+
+for absolute positioning accuracy the actuator has a setup variable "cal_runtime" if this is set the actuator measures the total runtime of the motors and when this 
+cal_runtime is exceeded it resets the actuator to 0% position and sets the output again to assure absolute accuracy.
+
+test and calibration can be shut off by setting the appropriate values to 0.
+a switch_available setup variable specifies if end_pos switches are available.
 (*@KEY@:END_DESCRIPTION*)
 FUNCTION_BLOCK ACTUATOR_3P
 
@@ -181,10 +214,3 @@ hm	28. jan 2010	rev 2.0
 *)
 (*@KEY@: END_WORKSHEET *)
 END_FUNCTION_BLOCK
-"""
-
-
-from src.ast_builder import ASTBuilder
-creator = ASTBuilder()
-creator.parse(text)
-

@@ -1,4 +1,40 @@
-text = """
+(*@PROPERTIES_EX@
+TYPE: POU
+LOCALE: 0
+IEC_LANGUAGE: ST
+PLC_TYPE: independent
+PROC_TYPE: independent
+GROUP: HLK
+*)
+(*@KEY@:DESCRIPTION*)
+version 1.5	15 sep 2007
+programmer 	oscat
+tested by	oscat
+
+burner ist eine Oel-Brenner_steuerung fuer nichtmodulierende Oelbrenner
+die steuerung kann ueber setup werte programmiert werden und entsprechenden brennern angepasst werden.
+die vorheizzeit ist die zeit die eine oelvorwaermung aufgeheizt wird bevor der motor gestartet wird.
+der eingang oil_temp gibt an ob die oil_temp erreicht wurde, er ist default auf true und kann auch offen gelassen werden.
+die vorbelueftungszeit ist die zeit die der luefter laeuft bevor die oelzufuhr freigegeben wird.
+die vorzuendzeit iust diejenige zeit die die zuendung vor offnen des oelventiel gestartet wird.
+nachzuendzeit ist die zeit die nach entzuendung der flamme noch gezuendet wird.
+die sicherheitszeit ist die zeit nach der die oelzufuhr gesperrt wird wenn keine flamme entsteht.
+nach ablauf der sicherheitszeit wird ein fehler flag gesetzt und kann erst nach der sperrzeit wieder durch einen reset geloescht werden.
+waehrend der sperrzeit ist keine weitere zuendung oder einschalten moeglich.
+das flag mehrfachzuendung gibt an ob eine erloschene flamme in betrieb automatisch wieder gezuendet werden soll.
+der flammwaechster liegt auf eingang flamme, ein uebertemperaturschutz auf dem eingang over_temp
+der betriebsstundenzaehler gibt die brennerstunden in stunden als real ausgabewer an.
+der ausgang motor steuert den luefter / pumpenmotor, oil_ventil schaltet das oil ventil und zuendung schaltet die zuendung ein.
+
+if output fail > 0 an error happened and the output has an error code:
+0 :	no error
+1 :	pre heating time expired and oil temp input is not true
+2 :	flame monitor is active during preheating time
+3 :	flame monitor active during pre_ventilation_time
+4 :	no ignoition during safety time
+5 :	no flame during operation
+9 :	overtemp input is true
+(*@KEY@:END_DESCRIPTION*)
 FUNCTION_BLOCK BURNER
 
 (*Group:Default*)
@@ -269,8 +305,3 @@ hm	21. oct. 2008	rev 1.6
 *)
 (*@KEY@: END_WORKSHEET *)
 END_FUNCTION_BLOCK
-"""
-
-from src.ast_builder import ASTBuilder
-creator = ASTBuilder()
-creator.parse(text)

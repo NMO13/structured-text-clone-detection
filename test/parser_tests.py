@@ -44,8 +44,8 @@ ast_builder.parse(text)
 
 text = """
 PROGRAM main
-FOR(i := 0 TO 10) DO
-avg := avg + 4;
+FOR i := 0 TO 10 DO
+avg := avg[3].x + 4;
 END_FOR;
 END_PROGRAM
 """
@@ -434,6 +434,16 @@ IF (tx - last) >= T2 THEN
 	(* timeout for long pulse if second click did not occur or in stays high *)
 	Q := FALSE;
 END_IF;
+END_PROGRAM"""
+
+ast_builder.parse(text)
+
+##############
+
+text = """
+PROGRAM main
+cmp:="ab";
+cmp:='ab';
 END_PROGRAM"""
 
 ast_builder.parse(text)
