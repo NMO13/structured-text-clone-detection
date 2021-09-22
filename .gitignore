@@ -9,7 +9,6 @@ test/.ipynb_checkpoints/actuator_2p-checkpoint.py
 test/.ipynb_checkpoints/actuator_3p-checkpoint.py
 test/.ipynb_checkpoints/burner-checkpoint.py
 test/.ipynb_checkpoints/wct-checkpoint.py
-test/__init__.py
 folderconfig.py
 .idea/
 *.sh
