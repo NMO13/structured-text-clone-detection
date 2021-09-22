@@ -28,14 +28,10 @@ semicolon = Literal(";").setParseAction(aw("MARKER"))
 ident = Word(alphas + "_", alphanums + "_").setParseAction(aw("TYPE_IDENTIFIER"))
 dtype = Word(alphas + "_", alphanums + "_").setParseAction(aw("DATATYPE"))
 expression = Forward()
-designator = ident + Optional(
-    (Literal(".").setParseAction(aw("MARKER")) + ident)
-    | OneOrMore(
-        Literal("[").setParseAction(aw("MARKER"))
+designator = ident + ZeroOrMore((Literal(".") + ident) | (Literal("[").setParseAction(aw("MARKER"))
         + expression
-        + Literal("]").setParseAction(aw("MARKER"))
-    )
-)
+        + Literal("]").setParseAction(aw("MARKER"))))
+
 assign_op = Literal(":=").setParseAction(aw("OPERATOR"))
 mulop = (Literal("*") | Literal("/") | Literal("MOD")).setParseAction(aw("OPERATOR"))
 addop = (Literal("+") | Literal("-")).setParseAction(aw("OPERATOR"))
@@ -126,13 +122,11 @@ expression << (xor_expression + ZeroOrMore(Literal("OR") + xor_expression))
 statement = Forward()
 block = ZeroOrMore(statement)
 count_condition = (
-    Literal("(").setParseAction(aw("MARKER"))
-    + designator
+     designator
     + assign_op
     + expression
     + Keyword("TO").setParseAction(aw("KEYWORD"))
     + expression
-    + Literal(")").setParseAction(aw("MARKER"))
 )
 
 enumerated_value = Optional(ident + "#") + ident
