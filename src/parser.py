@@ -37,7 +37,7 @@ designator = ident + Optional(
     )
 )
 assign_op = Literal(":=").setParseAction(aw("OPERATOR"))
-mulop = (Literal("*") | Literal("/")).setParseAction(aw("OPERATOR"))
+mulop = (Literal("*") | Literal("/") | Literal("MOD")).setParseAction(aw("OPERATOR"))
 addop = (Literal("+") | Literal("-")).setParseAction(aw("OPERATOR"))
 var_decl = (
     oneOf("VAR_INPUT VAR_OUTPUT VAR_IN_OUT VAR").setParseAction(aw("KEYWORD"))
@@ -53,24 +53,11 @@ var_decl = (
 relop = (
     Literal(">=")
     | Literal(">")
-    | Literal("<>")
     | Literal("<=")
     | Literal("<")
-    | Literal("=")
 ).setParseAction(aw("OPERATOR"))
 booleanop = (Literal("AND") | Literal("OR")).setParseAction(aw("KEYWORD"))
-condfact = ((
-    Literal("NOT").setParseAction(aw("KEYWORD"))
-    + Literal("(")
-    + expression
-    + Literal(")")
-) | (expression + Optional(relop + expression)))
-condterm = condfact + ZeroOrMore(
-    Keyword("AND").setParseAction(aw("KEYWORD")) + condfact
-)
-condition = condterm + ZeroOrMore(
-    Literal("OR").setParseAction(aw("KEYWORD")) + condterm
-)
+
 
 arithmeticop = (
     Literal("+") | Literal("-") | Literal("*") | Literal("/")
@@ -82,7 +69,8 @@ actpars = (
     + Optional(param + ZeroOrMore(Literal(",").setParseAction(aw("MARKER")) + param))
     + Literal(")").setParseAction(aw("METHOD_MARKER"))
 )
-factor = (
+
+primary_expression = (
     Combine(Word(alphas) + "#" + Word(alphanums)).setParseAction(aw("LITERAL"))
     | (designator + Optional(actpars))
     | Combine(
@@ -115,17 +103,16 @@ param << (
     )
 )
 
-primary_expression = factor
 unary_operator = Literal("-") | Literal("NOT")
 unary_expression = Optional(unary_operator) + primary_expression
-power_expression = unary_expression + ZeroOrMore("**" + unary_expression)
+power_expression = unary_expression + ZeroOrMore(Literal("**") + unary_expression)
 term = power_expression + ZeroOrMore(mulop + power_expression)
 add_expression = term + ZeroOrMore(addop + term)
 equ_expression = add_expression + ZeroOrMore(relop + add_expression)
-comparison = equ_expression + ZeroOrMore("=" + equ_expression)
-and_expression = comparison + ZeroOrMore("AND" + comparison)
-xor_expression = and_expression + ZeroOrMore("XOR" + and_expression)
-expression = xor_expression + ZeroOrMore("OR" + xor_expression)
+comparison = equ_expression + ZeroOrMore((Literal("=") | Literal("<>")) + equ_expression)
+and_expression = comparison + ZeroOrMore((Literal("&") | Literal("AND")) + comparison)
+xor_expression = and_expression + ZeroOrMore(Literal("XOR") + and_expression)
+expression << (xor_expression + ZeroOrMore(Literal("OR") + xor_expression))
 
 
 
@@ -162,7 +149,7 @@ statement << (
     )
     | (
         Keyword("WHILE").setParseAction(aw("KEYWORD"))
-        + condition
+        + expression
         + Keyword("DO").setParseAction(aw("KEYWORD"))
         + block
         + Keyword("END_WHILE").setParseAction(aw("KEYWORD"))
@@ -170,14 +157,12 @@ statement << (
     )
     | (
         Keyword("IF").setParseAction(aw("KEYWORD"))
-        + condition
+        + expression
         + Keyword("THEN").setParseAction(aw("KEYWORD"))
         + block
         + ZeroOrMore(
             Keyword("ELSIF").setParseAction(aw("KEYWORD"))
-            + Optional(Literal("(")).setParseAction(aw("MARKER"))
-            + condition
-            + Optional(Literal(")")).setParseAction(aw("MARKER"))
+            + expression
             + Keyword("THEN").setParseAction(aw("KEYWORD"))
             + block
         )
