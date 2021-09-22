@@ -1,6 +1,25 @@
 text = """
+(*@PROPERTIES_EX@
+TYPE: POU
+LOCALE: 0
+IEC_LANGUAGE: ST
+PLC_TYPE: independent
+PROC_TYPE: independent
+GROUP: ACTUATORS
+*)
+(*@KEY@:DESCRIPTION*)
+version 2.1	24. jan. 2009
+programmer 	hugo
+tested by	oscat
+
+this is an intelligent actuator interface for any 2point actuator like coil drive.
+the 2Point actuator can only switch on/off and therefore the input must be converted to on/off cycles.
+the interface can be programmed with double click on the symbol.
+in addition a self_act_time and self_act_cycles ca be programmed to switch n times on/off every self_act_time to avoid a valve to freeze.
+the input value must be between 0 and 255. with the setup variable sens one can specify what must be the minimum input to turn the valve on at all.
+at the same time an input > 255-sens will turn the valve on at all times.
 (*@KEY@:END_DESCRIPTION*)
-FUNCTION_BLOCK ACTUATOR_3P
+FUNCTION_BLOCK ACTUATOR_2P
 
 (*Group:Default*)
 
@@ -9,21 +28,17 @@ VAR_INPUT
 	IN :	BYTE;
 	TEST :	BOOL;
 	ARE :	BOOL := TRUE;
-	END_POS :	BOOL;
-	T_RUN :	TIME := T#60s;
-	T_EXT :	TIME := T#10s;
-	T_CAL :	TIME := T#600s;
-	T_DIAG :	TIME := T#10d;
-	SWITCH_AVAIL :	BOOL;
+	CYCLE_TIME :	TIME;
+	SENS :	BYTE;
+	SELF_ACT_TIME :	TIME;
+	SELF_ACT_PULSE :	TIME;
+	SELF_ACT_CYCLES :	INT := 1;
 END_VAR
 
 
 VAR_OUTPUT
-	OUT1 :	BOOL;
-	OUT2 :	BOOL;
-	POS :	BYTE;
-	ERROR :	BOOL;
-	STATUS :	BYTE;
+	OUT :	BOOL;
+	ARO :	BOOL;
 END_VAR
 
 
@@ -33,132 +48,64 @@ END_VAR
 
 
 VAR
-	tx :	TIME;
-	ramp :	_RMP_NEXT;
-	next_cal :	TIME;
-	next_diag :	TIME;
-	last :	TIME;
-	start :	TIME;
-	T_PLC_MS :	T_PLC_MS;
+	timer :	AUTORUN;
+	pwgen :	GEN_PULSE;
 END_VAR
 
 
 (*@KEY@: WORKSHEET
-NAME: ACTUATOR_3P
+NAME: ACTUATOR_2P
 IEC_LANGUAGE: ST
 *)
-(* setup *)
-T_PLC_MS();
-tx := UDINT_TO_TIME(T_PLC_MS.T_PLC_MS);
+(* run the autorun timer *)
+timer(trun := MUL_T_AI(SELF_ACT_PULSE,2 * SELF_ACT_CYCLES), toff := SELF_ACT_TIME, Test := TEST, ARE := ARE, arx := ARX);
+ARX := timer.ARX;
+ARO := timer.ARO;
 
-(* check test input *)
-IF TEST THEN
-	status := BYTE#103;
-	start := tx;
-	ARX := TRUE;
+(* run the pulse width generator *)
+IF aro THEN
+	pwgen(PTL := SELF_ACT_PULSE, PTH := SELF_ACT_PULSE);
+	out := pwgen.Q;
+ELSIF in < sens THEN
+	out := FALSE;
+ELSIF BYTE_TO_USINT(in) > USINT#255 - BYTE_TO_USINT(sens) THEN
+	out := TRUE;
+ELSE
+	pwgen.PTH := (CYCLE_TIME * BYTE_TO_TIME(BAND_B(IN,SENS))  ) / BYTE_TO_TIME(BYTE#255);
+	pwgen.PTL := CYCLE_TIME - pwgen.PTH;
+	pwgen();
+	out := pwgen.Q;
 END_IF;
 
-CASE _BYTE_TO_INT(status) OF
-	0:	(* power on setup *)
-		IF ARE AND NOT ARX THEN
-			status := BYTE#103;
-			start := tx;
-			ARX := TRUE;
-		END_IF;
 
-	100:	(* normal operation *)
-		(* check for auto diagnostics *)
-		IF T_DIAG > T#0s AND tx > next_diag AND ARE AND NOT ARX THEN
-				status := BYTE#103;
-				start := tx;
-				ARX := TRUE;
 
-		(* check for auto calibration *)
-		ELSIF T_CAL > T#0s AND tx > next_cal AND ARE AND NOT ARX THEN
-			IF pos > BYTE#127 THEN
-				OUT1 := TRUE;
-				OUT2 := FALSE;
-				ramp.IN := BYTE#255;
-				ARX := TRUE;
-			ELSE
-				OUT1 := FALSE;
-				OUT2 := TRUE;
-				ramp.IN := BYTE#0;
-				ARX := TRUE;
-			END_IF;
-			status := BYTE#101;
-			start := tx;
-		ELSE
-			(* increment next_cal if not active *)
-			IF NOT(OUT1 OR OUT2) THEN next_cal := next_cal + (tx-last); END_IF;
-			(* set ramp generator to IN *)
-			ramp.IN := IN;
-		END_IF;
+(* revision history
+hm	7.10.2006 		rev 1.1
+	changed error pos could not reach 1 or 0 under certain conditions due to error in code.
+	changed on and off in force and force_in for better usability.
 
-	101:	(* calibrate *)
-		IF tx - start < T_EXT THEN
-			next_cal := tx + T_CAL;
-		ELSIF SWITCH_AVAIL AND END_POS THEN
-			STATUS := BYTE#100;
-			ARX := FALSE;
-		ELSIF tx - start > T_EXT + T_RUN THEN
-			ERROR := SWITCH_AVAIL;
-			ARX := FALSE;
-		END_IF;
+hm	17.1.2007		rev 1.2
+	deleted unused variable time_overflow
 
-	103:	(* diagnostics up*)
-		(* run up for T_ext *)
-		IF tx - start < T_EXT THEN
-			ERROR := FALSE;
-			ramp.TR := T_RUN;
-			ramp.TF := T_RUN;
-			OUT1 := TRUE;
-			OUT2 := FALSE;
-			ramp.IN := BYTE#255;
-		ELSIF SWITCH_AVAIL AND END_POS THEN
-			ramp.TR := tx - start;
-			STATUS := BYTE#104;
-		ELSIF tx - start > T_EXT + T_RUN THEN
-			ERROR := SWITCH_AVAIL;
-			STATUS := BYTE#104;
-			start := tx;
-		END_IF;
+hm	15.9.2007		rev 1.3
+	replaced time() with T_PLC_MS for compatibility and performance reasons
 
-	104:	(* diagnostics dn*)
-		IF tx - start < T_ext THEN
-			OUT1 := FALSE;
-			OUT2 := TRUE;
-			ramp.IN := BYTE#0;
-			next_diag := tx + T_DIAG;
-		ELSIF SWITCH_AVAIL AND END_POS THEN
-			ramp.TR := tx - start;
-			(* check if runtimes differ by more than 10% *)
-			IF DINT_TO_TIME(ABS(TIME_TO_DINT(ramp.TR) - TIME_TO_DINT(ramp.TF)) * DINT#10) > T_RUN THEN error := TRUE; END_IF;
-			STATUS := BYTE#100;
-			ARX := FALSE;
-			next_cal := tx + T_CAL;
-		ELSIF tx - start > T_EXT + T_RUN THEN
-			IF SWITCH_AVAIL THEN ERROR := TRUE; END_IF;
-			STATUS := BYTE#100;
-			ARX := FALSE;
-			next_CAL := tx + T_CAL;
-		END_IF;
-END_CASE;
+hm	19. 11 2007		rev 1.4
+	replaced left over statement time() with tx
 
-(* internal flap simulation and output activation *)
-ramp(OUT := POS);
-POS := ramp.OUT;
-IF STATUS = BYTE#100 THEN
-	OUT1 := ramp.UP;
-	OUT2 := ramp.DN;
-END_IF;
+hm	27. 12. 2007	REV 1.5
+	CHANGED CODE FOR BETTER PERFORMANCE
 
-(* adjust position if end switch is active *)
-IF SWITCH_AVAIL AND END_POS THEN
-	POS := SEL_BYTE(POS > BYTE#127,);
-	next_cal := tx + T_CAL;
-END_IF;
+hm	21. oct. 2008	rev 1.6
+	code optimized
 
+hm	23. nov. 2008	rev 2.0
+	new code using library modules
+
+hm	24. jan. 2009	rev 2.1
+	deleted unused var inb
+*)
+(*@KEY@: END_WORKSHEET *)
 END_FUNCTION_BLOCK
 """
 
