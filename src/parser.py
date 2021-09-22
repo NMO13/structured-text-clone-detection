@@ -10,7 +10,8 @@ from pyparsing import (
     nums,
     Forward,
     oneOf,
-    Suppress
+    Suppress,
+Combine
 )
 
 
@@ -62,9 +63,10 @@ arithmeticop = (Literal("+") | Literal("-") | Literal("*") | Literal("/")).setPa
 param = Forward()
 actpars = Literal("(").setParseAction(aw("METHOD_MARKER")) + Optional(param + ZeroOrMore(Literal(",").setParseAction(aw("MARKER")) + param)) + Literal(")").setParseAction(aw("METHOD_MARKER"))
 factor = (
-    (designator + Optional(actpars))
+    Combine((Keyword("DWORD") | Keyword("LWORD") | Keyword("WORD") | Keyword("BYTE")) + "#" + Word(nums)).setParseAction(aw("LITERAL"))
+    | (designator + Optional(actpars))
     | Word(nums).setParseAction(aw("LITERAL"))
-    | Literal("(").setParseAction(aw("MARKER")) + expression + Literal(")").setParseAction(aw("MARKER"))
+    | (Literal("(").setParseAction(aw("MARKER")) + expression + Literal(")").setParseAction(aw("MARKER")))
 )
 term = factor + ZeroOrMore(mulop + factor)
 param << (
