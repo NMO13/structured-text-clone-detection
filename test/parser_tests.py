@@ -104,6 +104,24 @@ i : INT;
 a : INT;
 b : BOOL;
 END_VAR
+IF NOT init THEN
+	init := TRUE;
+	last_check := tx - t#100ms;
+END_IF;
+x := _BYTE_TO_INT(scene AND BYTE#2#0000_1111);
+END_PROGRAM"""
+
+ast_builder.parse(text)
+
+##############
+
+text = """
+PROGRAM main
+VAR_INPUT
+i : INT;
+a : INT;
+b : BOOL;
+END_VAR
 IF (a) THEN
 i := 3;
 END_IF;

@@ -30,7 +30,7 @@ dtype = Word(alphas + "_", alphanums + "_").setParseAction(aw("DATATYPE"))
 expression = Forward()
 designator = ident + Optional(
     (Literal(".").setParseAction(aw("MARKER")) + ident)
-    | (
+    | OneOrMore(
         Literal("[").setParseAction(aw("MARKER"))
         + expression
         + Literal("]").setParseAction(aw("MARKER"))
@@ -72,7 +72,7 @@ actpars = (
 )
 
 primary_expression = (
-    Combine(Word(alphas) + "#" + Word(alphanums) + Optional(
+    Combine(oneOf("BYTE WORD DWORD LWORD SINT INT DINT LINT USINT UINT UDINT ULINT REAL LREAL DATE TIME_OF_DAY TOD DATE_AND_TIME DT BOOL BYTE T TIME t") + Literal('#') + Word(alphanums + "_" + "-" + '#') + Optional(
             Literal(".")
             + Word(nums)
             + Optional(Literal("E") + Optional(Literal("-")) + Word(nums)
@@ -136,7 +136,7 @@ count_condition = (
 )
 
 enumerated_value = Optional(ident + "#") + ident
-subrange = Word(nums) + Keyword("..") + Word(nums)
+subrange = Word(nums) + Literal("..") + Word(nums)
 case_list_element = subrange | Word(nums) | enumerated_value
 case_list = case_list_element + ZeroOrMore("," + case_list_element)
 case_element = case_list + ":" + block
