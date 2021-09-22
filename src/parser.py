@@ -86,7 +86,7 @@ count_condition = (
     + expression
     + Literal(")").setParseAction(aw("MARKER"))
 )
-caseblock = ident + Literal(":").setParseAction(aw("MARKER")) + block
+caseblock = Word(nums).setParseAction(aw("MARKER")) + Suppress(Literal(":")) + block
 statement << (
     (
         Keyword("REPEAT").setParseAction(aw("KEYWORD"))
@@ -134,7 +134,7 @@ statement << (
     | (
         Keyword("CASE").setParseAction(aw("KEYWORD"))
         + designator
-        + Optional(actpars)
+        + Optional(actpars).setParseAction(aw("METHOD_IDENTIFIER"))
         + Keyword("OF").setParseAction(aw("KEYWORD"))
         + OneOrMore(caseblock)
         + Optional(Keyword("ELSE").setParseAction(aw("KEYWORD")) + block)
