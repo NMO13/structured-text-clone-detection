@@ -1,34 +1,12 @@
 from src.ast_builder import ASTBuilder
 ast_builder = ASTBuilder()
-text = """
-PROGRAM main
-VAR_INPUT
-i : INT;
-END_VAR
-END_PROGRAM"""
-
-ast_builder.parse(text)
-################
 
 text = """
 PROGRAM main
 VAR_INPUT
 i : INT;
 END_VAR
-END_PROGRAM"""
-
-ast_builder.parse(text)
-
-###############
-
-
-text = """
-PROGRAM main
-VAR_INPUT
-i : INT;
-END_VAR
-i := 0;
-j := 3;
+i:=3;
 END_PROGRAM"""
 
 ast_builder.parse(text)

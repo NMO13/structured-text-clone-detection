@@ -1,31 +1,42 @@
+from functools import partial
 from pyparsing import (
     Word,
     Literal,
     Keyword,
-    alphanums,
+    alphas,
     ZeroOrMore,
     OneOrMore,
     Optional,
     nums,
     Forward,
     oneOf,
+    Suppress
 )
 
-semicolon = Literal(";")
-ident = Word(alphanums + "_", alphanums + "_" + "#")
+
+def aw(tokentype):
+    return partial(annotate, tokentype)
+
+def annotate(tokentype, t):
+    return (tokentype, t[0]) if t else []
+
+
+semicolon = Literal(";").setParseAction(aw("MARKER"))
+ident = Word(alphas + "_", alphas + "_" + "#").setParseAction(aw("TYPE_IDENTIFIER"))
+dtype = Word(alphas + "_", alphas + "_" + "#").setParseAction(aw("DATATYPE"))
 expression = Forward()
 designator = ident + Optional(
-    (Literal(".") + ident) | (Literal("[") + expression + Literal("]"))
+    (Literal(".").setParseAction(aw("MARKER")) + ident) | (Literal("[").setParseAction(aw("MARKER")) + expression + Literal("]").setParseAction(aw("MARKER")))
 )
-assign_op = Literal(":=")
-mulop = Literal("*") | Literal("/")
-addop = Literal("+") | Literal("-")
+assign_op = Literal(":=").setParseAction(aw("OPERATOR"))
+mulop = (Literal("*") | Literal("/")).setParseAction(aw("OPERATOR"))
+addop = (Literal("+") | Literal("-")).setParseAction(aw("OPERATOR"))
 var_decl = (
-    oneOf("VAR_INPUT VAR_OUTPUT VAR_IN_OUT VAR")
+    oneOf("VAR_INPUT VAR_OUTPUT VAR_IN_OUT VAR").setParseAction(aw("KEYWORD"))
     + ZeroOrMore(
-        designator + Literal(":") + ident + Optional(assign_op + expression) + semicolon
+        designator + Suppress(Literal(":")) + dtype + Optional(assign_op + expression) + semicolon
     )
-    + Keyword("END_VAR")
+    + Keyword("END_VAR").setParseAction(aw("KEYWORD"))
 )
 relop = (
     Literal(">=")
@@ -34,113 +45,115 @@ relop = (
     | Literal("<=")
     | Literal("<")
     | Literal("=")
-)
-booleanop = Literal("AND") | Literal("OR")
+).setParseAction(aw("OPERATOR"))
+booleanop = (Literal("AND") | Literal("OR")).setParseAction(aw("KEYWORD"))
 condfact = (
-    Optional("NOT")
-    + Optional("(")
+    Optional("NOT").setParseAction(aw("KEYWORD"))
+    + Optional("(").setParseAction(aw("MARKER"))
     + expression
     + Optional(relop + expression)
-    + Optional(")")
+    + Optional(")").setParseAction(aw("MARKER"))
 )
-condterm = Optional("(") + condfact + ZeroOrMore("AND" + condfact) + Optional(")")
-condition = condterm + ZeroOrMore(Literal("OR") + condterm)
+condterm = Optional("(").setParseAction(aw("MARKER")) + condfact + ZeroOrMore(Keyword("AND").setParseAction(aw("KEYWORD")) + condfact) + Optional(")").setParseAction(aw("MARKER"))
+condition = condterm + ZeroOrMore(Literal("OR").setParseAction(aw("KEYWORD")) + condterm)
 
-arithmeticop = Literal("+") | Literal("-") | Literal("*") | Literal("/")
+arithmeticop = (Literal("+") | Literal("-") | Literal("*") | Literal("/")).setParseAction(aw("OPERATOR"))
 
 param = Forward()
-actpars = Literal("(") + Optional(param + ZeroOrMore("," + param)) + Literal(")")
+actpars = Literal("(").setParseAction(aw("MARKER")) + Optional(param + ZeroOrMore(Literal(",").setParseAction(aw("MARKER")) + param)) + Literal(")").setParseAction(aw("MARKER"))
 factor = (
-    (designator + Optional(actpars))
-    | Word(nums)
-    | Literal("(") + expression + Literal(")")
+    (designator + Optional(actpars).setParseAction(aw("METHOD_IDENTIFIER")))
+    | Word(nums).setParseAction(aw("LITERAL"))
+    | Literal("(").setParseAction(aw("MARKER")) + expression + Literal(")").setParseAction(aw("MARKER"))
 )
 term = factor + ZeroOrMore(mulop + factor)
 param << (
     expression
     + Optional(
         Optional(assign_op + expression)
-        + ZeroOrMore((relop | arithmeticop | booleanop + Optional("NOT")) + expression)
+        + ZeroOrMore((relop | arithmeticop | booleanop + Optional("NOT").setParseAction(aw("KEYWORD"))) + expression)
     )
 )
-expression << (Optional("-") + term + ZeroOrMore(addop + Optional("-") + term))
+expression << (Optional("-").setParseAction(aw("OPERATOR")) + term + ZeroOrMore(addop + Optional("-").setParseAction(aw("OPERATOR")) + term))
 statement = Forward()
 block = ZeroOrMore(statement)
 count_condition = (
-    Literal("(")
+    Literal("(").setParseAction(aw("MARKER"))
     + designator
     + assign_op
-    + Word(nums)
-    + Keyword("TO")
-    + Word(nums)
-    + Literal(")")
+    + expression
+    + Keyword("TO").setParseAction(aw("KEYWORD"))
+    + expression
+    + Literal(")").setParseAction(aw("MARKER"))
 )
-caseblock = ident + Literal(":") + block
+caseblock = ident + Literal(":").setParseAction(aw("MARKER")) + block
 statement << (
     (
-        Keyword("REPEAT")
+        Keyword("REPEAT").setParseAction(aw("KEYWORD"))
         + block
-        + Keyword("UNTIL")
+        + Keyword("UNTIL").setParseAction(aw("KEYWORD"))
         + condition
         + semicolon
-        + Keyword("END_REPEAT")
+        + Keyword("END_REPEAT").setParseAction(aw("KEYWORD"))
         + semicolon
     )
-    | (designator + ((assign_op + expression) | actpars) + semicolon)
+    | (designator + ((assign_op + expression) | actpars.setParseAction(aw("METHOD_IDENTIFIER"))) + semicolon)
     | (
-        Keyword("FOR")
+        Keyword("FOR").setParseAction(aw("KEYWORD"))
         + count_condition
-        + Keyword("DO")
+        + Keyword("DO").setParseAction(aw("KEYWORD"))
         + block
-        + Keyword("END_FOR")
+        + Keyword("END_FOR").setParseAction(aw("KEYWORD"))
         + semicolon
     )
     | (
-        Keyword("WHILE")
+        Keyword("WHILE").setParseAction(aw("KEYWORD"))
         + condition
-        + Keyword("DO")
+        + Keyword("DO").setParseAction(aw("KEYWORD"))
         + block
-        + Keyword("END_WHILE")
+        + Keyword("END_WHILE").setParseAction(aw("KEYWORD"))
         + semicolon
     )
     | (
-        Keyword("IF")
+        Keyword("IF").setParseAction(aw("KEYWORD"))
         + condition
-        + Keyword("THEN")
+        + Keyword("THEN").setParseAction(aw("KEYWORD"))
         + block
         + ZeroOrMore(
-            Keyword("ELSIF")
-            + Optional(Literal("("))
+            Keyword("ELSIF").setParseAction(aw("KEYWORD"))
+            + Optional(Literal("(")).setParseAction(aw("MARKER"))
             + condition
-            + Optional(Literal(")"))
-            + Keyword("THEN")
+            + Optional(Literal(")")).setParseAction(aw("MARKER"))
+            + Keyword("THEN").setParseAction(aw("KEYWORD"))
             + block
         )
-        + Optional(Keyword("ELSE") + block)
-        + Keyword("END_IF")
+        + Optional(Keyword("ELSE").setParseAction(aw("KEYWORD")) + block)
+        + Keyword("END_IF").setParseAction(aw("KEYWORD"))
         + semicolon
     )
     | (
-        Keyword("CASE")
+        Keyword("CASE").setParseAction(aw("KEYWORD"))
         + designator
         + Optional(actpars)
-        + Keyword("OF")
+        + Keyword("OF").setParseAction(aw("KEYWORD"))
         + OneOrMore(caseblock)
-        + Optional(Keyword("ELSE") + block)
-        + Keyword("END_CASE")
+        + Optional(Keyword("ELSE").setParseAction(aw("KEYWORD")) + block)
+        + Keyword("END_CASE").setParseAction(aw("KEYWORD"))
         + semicolon
     )
-    | (Keyword("RETURN") + semicolon)
+    | (Keyword("RETURN").setParseAction(aw("KEYWORD")) + semicolon)
 )
+
 
 
 parser = (
-    Keyword("PROGRAM")
+    (Keyword("PROGRAM")
     | Keyword("FUNCTION_BLOCK")
-    | Keyword("FUNCTION")
+    | Keyword("FUNCTION")).setParseAction(aw("KEYWORD"))
     + ident
-    + Optional(":" + ident)
+    + Optional(Suppress(":") + ident)
     + ZeroOrMore(var_decl)
     + ZeroOrMore(statement)
-    + oneOf("END_PROGRAM END_FUNCTION_BLOCK END_FUNCTION")
+    + oneOf("END_PROGRAM END_FUNCTION_BLOCK END_FUNCTION").setParseAction(aw("KEYWORD"))
 )
+

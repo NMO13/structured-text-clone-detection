@@ -7,7 +7,8 @@ class ASTBuilder:
     def parse(self, text):
         text = self.remove_description(text)
         text = self.remove_comments(text)
-        self.parser.parseString(text)
+        res = self.parser.parseString(text)
+        print(res)
 
     def remove_description(self, text):
         descriptionStartComment = "(*@KEY@:DESCRIPTION*)"
