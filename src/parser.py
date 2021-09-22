@@ -71,14 +71,20 @@ actpars = (
 )
 
 primary_expression = (
-    Combine(Word(alphas) + "#" + Word(alphanums)).setParseAction(aw("LITERAL"))
+    Combine(Word(alphas) + "#" + Word(alphanums) + Optional(
+            Literal(".")
+            + Word(nums)
+            + Optional(Literal("E") + Optional(Literal("-")) + Word(nums)
+                       )
+        )).setParseAction(aw("LITERAL"))
     | (designator + Optional(actpars))
     | Combine(
         Word(nums)
         + Optional(
             Literal(".")
             + Word(nums)
-            + Optional(Literal("E") + Optional(Literal("-")) + Word(nums))
+            + Optional(Literal("E") + Optional(Literal("-")) + Word(nums)
+                       )
         )
     ).setParseAction(aw("LITERAL"))
     | (
