@@ -394,3 +394,15 @@ END_FUNCTION"""
 
 ast_builder.parse(text)
 
+##############
+
+text = """
+PROGRAM main
+IF (tx - last) >= T2 THEN
+	(* timeout for long pulse if second click did not occur or in stays high *)
+	Q := FALSE;
+END_IF;
+END_PROGRAM"""
+
+ast_builder.parse(text)
+

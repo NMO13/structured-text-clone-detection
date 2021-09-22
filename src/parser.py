@@ -99,7 +99,7 @@ factor = (
         + Literal(")").setParseAction(aw("MARKER"))
     )
 )
-term = factor + ZeroOrMore(mulop + factor)
+
 param << (
     expression
     + Optional(
@@ -114,11 +114,21 @@ param << (
         )
     )
 )
-expression << (
-    Optional("-").setParseAction(aw("OPERATOR"))
-    + term
-    + ZeroOrMore(addop + Optional("-").setParseAction(aw("OPERATOR")) + term)
-)
+
+primary_expression = factor
+unary_operator = Literal("-") | Literal("NOT")
+unary_expression = Optional(unary_operator) + primary_expression
+power_expression = unary_expression + ZeroOrMore("**" + unary_expression)
+term = power_expression + ZeroOrMore(mulop + power_expression)
+add_expression = term + ZeroOrMore(addop + term)
+equ_expression = add_expression + ZeroOrMore(relop + add_expression)
+comparison = equ_expression + ZeroOrMore("=" + equ_expression)
+and_expression = comparison + ZeroOrMore("AND" + comparison)
+xor_expression = and_expression + ZeroOrMore("XOR" + and_expression)
+expression = xor_expression + ZeroOrMore("OR" + xor_expression)
+
+
+
 statement = Forward()
 block = ZeroOrMore(statement)
 count_condition = (
@@ -136,7 +146,7 @@ statement << (
         Keyword("REPEAT").setParseAction(aw("KEYWORD"))
         + block
         + Keyword("UNTIL").setParseAction(aw("KEYWORD"))
-        + condition
+        + expression
         + semicolon
         + Keyword("END_REPEAT").setParseAction(aw("KEYWORD"))
         + semicolon
