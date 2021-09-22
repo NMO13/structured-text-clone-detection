@@ -13,7 +13,7 @@ from pyparsing import (
     Suppress,
     Combine,
     alphanums,
-QuotedString
+    QuotedString,
 )
 
 
@@ -29,16 +29,25 @@ semicolon = Literal(";").setParseAction(aw("MARKER"))
 ident = Word(alphas + "_", alphanums + "_").setParseAction(aw("TYPE_IDENTIFIER"))
 dtype = Word(alphas + "_", alphanums + "_").setParseAction(aw("DATATYPE"))
 expression = Forward()
-designator = ident + ZeroOrMore((Literal(".").setParseAction(aw("MARKER")) + ident) | (Literal("[").setParseAction(aw("MARKER"))
+designator = ident + ZeroOrMore(
+    (Literal(".").setParseAction(aw("MARKER")) + ident)
+    | (
+        Literal("[").setParseAction(aw("MARKER"))
         + expression
-        + Literal("]").setParseAction(aw("MARKER"))))
+        + Literal("]").setParseAction(aw("MARKER"))
+    )
+)
 
 assign_op = Literal(":=").setParseAction(aw("OPERATOR"))
 mulop = (Literal("*") | Literal("/") | Literal("MOD")).setParseAction(aw("OPERATOR"))
 addop = (Literal("+") | Literal("-")).setParseAction(aw("OPERATOR"))
 var_decl = (
     oneOf("VAR_INPUT VAR_OUTPUT VAR_IN_OUT VAR").setParseAction(aw("KEYWORD"))
-    + Optional(Literal("CONSTANT").setParseAction(aw("KEYWORD")) | Literal("RETAIN").setParseAction(aw("KEYWORD")) | Literal("NON_RETAIN").setParseAction(aw("KEYWORD")))
+    + Optional(
+        Literal("CONSTANT").setParseAction(aw("KEYWORD"))
+        | Literal("RETAIN").setParseAction(aw("KEYWORD"))
+        | Literal("NON_RETAIN").setParseAction(aw("KEYWORD"))
+    )
     + ZeroOrMore(
         designator
         + Suppress(Literal(":"))
@@ -48,12 +57,9 @@ var_decl = (
     )
     + Keyword("END_VAR").setParseAction(aw("KEYWORD"))
 )
-relop = (
-    Literal(">=")
-    | Literal(">")
-    | Literal("<=")
-    | Literal("<")
-).setParseAction(aw("OPERATOR"))
+relop = (Literal(">=") | Literal(">") | Literal("<=") | Literal("<")).setParseAction(
+    aw("OPERATOR")
+)
 booleanop = (Literal("AND") | Literal("OR")).setParseAction(aw("KEYWORD"))
 
 
@@ -68,25 +74,30 @@ actpars = (
     + Literal(")").setParseAction(aw("METHOD_MARKER"))
 )
 
-single_byte_character = Literal("\\") + Literal("\'")
-double_byte_character = Literal("\"")
+single_byte_character = Literal("\\") + Literal("'")
+double_byte_character = Literal('"')
 
-#todo is the literal handling correct? Otherwise I have to differentiate between literals and designator in a post processing step
+# todo is the literal handling correct? Otherwise I have to differentiate between literals and designator in a post processing step
 primary_expression = (
-    Combine(oneOf("BYTE WORD DWORD LWORD SINT INT DINT LINT USINT UINT UDINT ULINT REAL LREAL DATE TIME_OF_DAY TOD DATE_AND_TIME DT BOOL BYTE T TIME t") + Literal('#') + Word(alphanums + "_" + "-" + '#') + Optional(
+    Combine(
+        oneOf(
+            "BYTE WORD DWORD LWORD SINT INT DINT LINT USINT UINT UDINT ULINT REAL LREAL DATE TIME_OF_DAY TOD DATE_AND_TIME DT BOOL BYTE T TIME t"
+        )
+        + Literal("#")
+        + Word(alphanums + "_" + "-" + "#")
+        + Optional(
             Literal(".")
             + Word(nums)
-            + Optional(Literal("E") + Optional(Literal("-")) + Word(nums)
-                       )
-        )).setParseAction(aw("LITERAL"))
+            + Optional(Literal("E") + Optional(Literal("-")) + Word(nums))
+        )
+    ).setParseAction(aw("LITERAL"))
     | (designator + Optional(actpars))
     | Combine(
         Word(nums)
         + Optional(
             Literal(".")
             + Word(nums)
-            + Optional(Literal("E") + Optional(Literal("-")) + Word(nums)
-                       )
+            + Optional(Literal("E") + Optional(Literal("-")) + Word(nums))
         )
     ).setParseAction(aw("LITERAL"))
     | (
@@ -94,7 +105,7 @@ primary_expression = (
         + expression
         + Literal(")").setParseAction(aw("MARKER"))
     )
-    | (QuotedString("\"") | QuotedString("\'")).setParseAction(aw("LITERAL"))
+    | (QuotedString('"') | QuotedString("'")).setParseAction(aw("LITERAL"))
 )
 
 param << (
@@ -112,23 +123,43 @@ param << (
     )
 )
 
-unary_operator = Literal("-").setParseAction(aw("OPERATOR")) | Literal("NOT").setParseAction(aw("OPERATOR"))
+unary_operator = Literal("-").setParseAction(aw("OPERATOR")) | Literal(
+    "NOT"
+).setParseAction(aw("OPERATOR"))
 unary_expression = Optional(unary_operator) + primary_expression
-power_expression = unary_expression + ZeroOrMore(Literal("**").setParseAction(aw("OPERATOR")) + unary_expression)
+power_expression = unary_expression + ZeroOrMore(
+    Literal("**").setParseAction(aw("OPERATOR")) + unary_expression
+)
 term = power_expression + ZeroOrMore(mulop + power_expression)
 add_expression = term + ZeroOrMore(addop + term)
 equ_expression = add_expression + ZeroOrMore(relop + add_expression)
-comparison = equ_expression + ZeroOrMore((Literal("=").setParseAction(aw("OPERATOR")) | Literal("<>").setParseAction(aw("OPERATOR"))) + equ_expression)
-and_expression = comparison + ZeroOrMore((Literal("&").setParseAction(aw("OPERATOR")) | Literal("AND").setParseAction(aw("OPERATOR"))) + comparison)
-xor_expression = and_expression + ZeroOrMore(Literal("XOR").setParseAction(aw("OPERATOR")) + and_expression)
-expression << (xor_expression + ZeroOrMore(Literal("OR").setParseAction(aw("OPERATOR")) + xor_expression))
-
+comparison = equ_expression + ZeroOrMore(
+    (
+        Literal("=").setParseAction(aw("OPERATOR"))
+        | Literal("<>").setParseAction(aw("OPERATOR"))
+    )
+    + equ_expression
+)
+and_expression = comparison + ZeroOrMore(
+    (
+        Literal("&").setParseAction(aw("OPERATOR"))
+        | Literal("AND").setParseAction(aw("OPERATOR"))
+    )
+    + comparison
+)
+xor_expression = and_expression + ZeroOrMore(
+    Literal("XOR").setParseAction(aw("OPERATOR")) + and_expression
+)
+expression << (
+    xor_expression
+    + ZeroOrMore(Literal("OR").setParseAction(aw("OPERATOR")) + xor_expression)
+)
 
 
 statement = Forward()
 block = ZeroOrMore(statement)
 count_condition = (
-     designator
+    designator
     + assign_op
     + expression
     + Keyword("TO").setParseAction(aw("KEYWORD"))
