@@ -60,9 +60,9 @@ condition = condterm + ZeroOrMore(Literal("OR").setParseAction(aw("KEYWORD")) + 
 arithmeticop = (Literal("+") | Literal("-") | Literal("*") | Literal("/")).setParseAction(aw("OPERATOR"))
 
 param = Forward()
-actpars = Literal("(").setParseAction(aw("MARKER")) + Optional(param + ZeroOrMore(Literal(",").setParseAction(aw("MARKER")) + param)) + Literal(")").setParseAction(aw("MARKER"))
+actpars = Literal("(").setParseAction(aw("METHOD_MARKER")) + Optional(param + ZeroOrMore(Literal(",").setParseAction(aw("MARKER")) + param)) + Literal(")").setParseAction(aw("METHOD_MARKER"))
 factor = (
-    (designator + Optional(actpars).setParseAction(aw("METHOD_IDENTIFIER")))
+    (designator + Optional(actpars))
     | Word(nums).setParseAction(aw("LITERAL"))
     | Literal("(").setParseAction(aw("MARKER")) + expression + Literal(")").setParseAction(aw("MARKER"))
 )
@@ -97,7 +97,7 @@ statement << (
         + Keyword("END_REPEAT").setParseAction(aw("KEYWORD"))
         + semicolon
     )
-    | (designator + ((assign_op + expression) | actpars.setParseAction(aw("METHOD_IDENTIFIER"))) + semicolon)
+    | (designator + ((assign_op + expression) | actpars) + semicolon)
     | (
         Keyword("FOR").setParseAction(aw("KEYWORD"))
         + count_condition
@@ -134,7 +134,7 @@ statement << (
     | (
         Keyword("CASE").setParseAction(aw("KEYWORD"))
         + designator
-        + Optional(actpars).setParseAction(aw("METHOD_IDENTIFIER"))
+        + Optional(actpars)
         + Keyword("OF").setParseAction(aw("KEYWORD"))
         + OneOrMore(caseblock)
         + Optional(Keyword("ELSE").setParseAction(aw("KEYWORD")) + block)
