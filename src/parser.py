@@ -11,7 +11,8 @@ from pyparsing import (
     Forward,
     oneOf,
     Suppress,
-Combine
+    Combine,
+    alphanums
 )
 
 
@@ -23,8 +24,8 @@ def annotate(tokentype, t):
 
 
 semicolon = Literal(";").setParseAction(aw("MARKER"))
-ident = Word(alphas + "_", alphas + "_" + "#").setParseAction(aw("TYPE_IDENTIFIER"))
-dtype = Word(alphas + "_", alphas + "_" + "#").setParseAction(aw("DATATYPE"))
+ident = Word(alphas + "_", alphanums + "_").setParseAction(aw("TYPE_IDENTIFIER"))
+dtype = Word(alphas + "_", alphanums + "_").setParseAction(aw("DATATYPE"))
 expression = Forward()
 designator = ident + Optional(
     (Literal(".").setParseAction(aw("MARKER")) + ident) | (Literal("[").setParseAction(aw("MARKER")) + expression + Literal("]").setParseAction(aw("MARKER")))
@@ -63,9 +64,9 @@ arithmeticop = (Literal("+") | Literal("-") | Literal("*") | Literal("/")).setPa
 param = Forward()
 actpars = Literal("(").setParseAction(aw("METHOD_MARKER")) + Optional(param + ZeroOrMore(Literal(",").setParseAction(aw("MARKER")) + param)) + Literal(")").setParseAction(aw("METHOD_MARKER"))
 factor = (
-    Combine((Keyword("DWORD") | Keyword("LWORD") | Keyword("WORD") | Keyword("BYTE")) + "#" + Word(nums)).setParseAction(aw("LITERAL"))
+    Combine(Word(alphas) + "#" + Word(alphanums)).setParseAction(aw("LITERAL"))
     | (designator + Optional(actpars))
-    | Word(nums).setParseAction(aw("LITERAL"))
+    | Combine(Word(nums) + Optional(Literal(".") + Word(nums) + Optional(Literal("E") + Optional(Literal("-")) + Word(nums)))).setParseAction(aw("LITERAL"))
     | (Literal("(").setParseAction(aw("MARKER")) + expression + Literal(")").setParseAction(aw("MARKER")))
 )
 term = factor + ZeroOrMore(mulop + factor)
