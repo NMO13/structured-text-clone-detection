@@ -212,6 +212,20 @@ i : INT;
 END_VAR
 
 CASE state OF
+1..7:	x := 3;
+END_CASE;
+END_PROGRAM"""
+
+ast_builder.parse(text)
+
+##############
+text = """
+PROGRAM main
+VAR_INPUT
+i : INT;
+END_VAR
+
+CASE state OF
 0: IF (green_EW)THEN
      state :=1;
    END_IF;
