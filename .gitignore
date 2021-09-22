@@ -11,3 +11,5 @@ test/.ipynb_checkpoints/burner-checkpoint.py
 test/.ipynb_checkpoints/wct-checkpoint.py
 test/__init__.py
 folderconfig.py
+.idea/
+*.sh
