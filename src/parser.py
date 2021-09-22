@@ -134,7 +134,12 @@ count_condition = (
     + expression
     + Literal(")").setParseAction(aw("MARKER"))
 )
-caseblock = Word(nums).setParseAction(aw("MARKER")) + Suppress(Literal(":")) + block
+
+enumerated_value = Optional(ident + "#") + ident
+subrange = Word(nums) + Keyword("..") + Word(nums)
+case_list_element = subrange | Word(nums) | enumerated_value
+case_list = case_list_element + ZeroOrMore("," + case_list_element)
+case_element = case_list + ":" + block
 statement << (
     (
         Keyword("REPEAT").setParseAction(aw("KEYWORD"))
@@ -179,10 +184,9 @@ statement << (
     )
     | (
         Keyword("CASE").setParseAction(aw("KEYWORD"))
-        + designator
-        + Optional(actpars)
+        + expression
         + Keyword("OF").setParseAction(aw("KEYWORD"))
-        + OneOrMore(caseblock)
+        + OneOrMore(case_element)
         + Optional(Keyword("ELSE").setParseAction(aw("KEYWORD")) + block)
         + Keyword("END_CASE").setParseAction(aw("KEYWORD"))
         + semicolon
