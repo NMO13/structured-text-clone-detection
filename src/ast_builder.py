@@ -1,4 +1,5 @@
 class ASTBuilder:
+
     def __init__(self):
         from src.parser import parser
 
@@ -7,8 +8,8 @@ class ASTBuilder:
     def parse(self, text):
         text = self.remove_description(text)
         text = self.remove_comments(text)
-        res = self.parser.parseString(text)
-        print(res)
+        result = self.parser.parseString(text)
+        self.post_process(result)
 
     def remove_description(self, text):
         descriptionStartComment = "(*@KEY@:DESCRIPTION*)"
@@ -34,3 +35,9 @@ class ASTBuilder:
         res = re.sub(r"\(\*([\s\S]*?)\*\)", " ", text)
 
         return res
+
+    def post_process(self):
+        """
+        Redeclare method types
+        :return:
+        """

@@ -12,12 +12,13 @@ from pyparsing import (
     oneOf,
     Suppress,
     Combine,
-    alphanums
+    alphanums,
 )
 
 
 def aw(tokentype):
     return partial(annotate, tokentype)
+
 
 def annotate(tokentype, t):
     return (tokentype, t[0]) if t else []
@@ -28,7 +29,12 @@ ident = Word(alphas + "_", alphanums + "_").setParseAction(aw("TYPE_IDENTIFIER")
 dtype = Word(alphas + "_", alphanums + "_").setParseAction(aw("DATATYPE"))
 expression = Forward()
 designator = ident + Optional(
-    (Literal(".").setParseAction(aw("MARKER")) + ident) | (Literal("[").setParseAction(aw("MARKER")) + expression + Literal("]").setParseAction(aw("MARKER")))
+    (Literal(".").setParseAction(aw("MARKER")) + ident)
+    | (
+        Literal("[").setParseAction(aw("MARKER"))
+        + expression
+        + Literal("]").setParseAction(aw("MARKER"))
+    )
 )
 assign_op = Literal(":=").setParseAction(aw("OPERATOR"))
 mulop = (Literal("*") | Literal("/")).setParseAction(aw("OPERATOR"))
@@ -36,7 +42,11 @@ addop = (Literal("+") | Literal("-")).setParseAction(aw("OPERATOR"))
 var_decl = (
     oneOf("VAR_INPUT VAR_OUTPUT VAR_IN_OUT VAR").setParseAction(aw("KEYWORD"))
     + ZeroOrMore(
-        designator + Suppress(Literal(":")) + dtype + Optional(assign_op + expression) + semicolon
+        designator
+        + Suppress(Literal(":"))
+        + dtype
+        + Optional(assign_op + expression)
+        + semicolon
     )
     + Keyword("END_VAR").setParseAction(aw("KEYWORD"))
 )
@@ -56,28 +66,63 @@ condfact = (
     + Optional(relop + expression)
     + Optional(")").setParseAction(aw("MARKER"))
 )
-condterm = Optional("(").setParseAction(aw("MARKER")) + condfact + ZeroOrMore(Keyword("AND").setParseAction(aw("KEYWORD")) + condfact) + Optional(")").setParseAction(aw("MARKER"))
-condition = condterm + ZeroOrMore(Literal("OR").setParseAction(aw("KEYWORD")) + condterm)
+condterm = (
+    Optional("(").setParseAction(aw("MARKER"))
+    + condfact
+    + ZeroOrMore(Keyword("AND").setParseAction(aw("KEYWORD")) + condfact)
+    + Optional(")").setParseAction(aw("MARKER"))
+)
+condition = condterm + ZeroOrMore(
+    Literal("OR").setParseAction(aw("KEYWORD")) + condterm
+)
 
-arithmeticop = (Literal("+") | Literal("-") | Literal("*") | Literal("/")).setParseAction(aw("OPERATOR"))
+arithmeticop = (
+    Literal("+") | Literal("-") | Literal("*") | Literal("/")
+).setParseAction(aw("OPERATOR"))
 
 param = Forward()
-actpars = Literal("(").setParseAction(aw("METHOD_MARKER")) + Optional(param + ZeroOrMore(Literal(",").setParseAction(aw("MARKER")) + param)) + Literal(")").setParseAction(aw("METHOD_MARKER"))
+actpars = (
+    Literal("(").setParseAction(aw("METHOD_MARKER"))
+    + Optional(param + ZeroOrMore(Literal(",").setParseAction(aw("MARKER")) + param))
+    + Literal(")").setParseAction(aw("METHOD_MARKER"))
+)
 factor = (
     Combine(Word(alphas) + "#" + Word(alphanums)).setParseAction(aw("LITERAL"))
     | (designator + Optional(actpars))
-    | Combine(Word(nums) + Optional(Literal(".") + Word(nums) + Optional(Literal("E") + Optional(Literal("-")) + Word(nums)))).setParseAction(aw("LITERAL"))
-    | (Literal("(").setParseAction(aw("MARKER")) + expression + Literal(")").setParseAction(aw("MARKER")))
+    | Combine(
+        Word(nums)
+        + Optional(
+            Literal(".")
+            + Word(nums)
+            + Optional(Literal("E") + Optional(Literal("-")) + Word(nums))
+        )
+    ).setParseAction(aw("LITERAL"))
+    | (
+        Literal("(").setParseAction(aw("MARKER"))
+        + expression
+        + Literal(")").setParseAction(aw("MARKER"))
+    )
 )
 term = factor + ZeroOrMore(mulop + factor)
 param << (
     expression
     + Optional(
         Optional(assign_op + expression)
-        + ZeroOrMore((relop | arithmeticop | booleanop + Optional("NOT").setParseAction(aw("KEYWORD"))) + expression)
+        + ZeroOrMore(
+            (
+                relop
+                | arithmeticop
+                | booleanop + Optional("NOT").setParseAction(aw("KEYWORD"))
+            )
+            + expression
+        )
     )
 )
-expression << (Optional("-").setParseAction(aw("OPERATOR")) + term + ZeroOrMore(addop + Optional("-").setParseAction(aw("OPERATOR")) + term))
+expression << (
+    Optional("-").setParseAction(aw("OPERATOR"))
+    + term
+    + ZeroOrMore(addop + Optional("-").setParseAction(aw("OPERATOR")) + term)
+)
 statement = Forward()
 block = ZeroOrMore(statement)
 count_condition = (
@@ -147,16 +192,13 @@ statement << (
     | (Keyword("RETURN").setParseAction(aw("KEYWORD")) + semicolon)
 )
 
-
-
 parser = (
-    (Keyword("PROGRAM")
-    | Keyword("FUNCTION_BLOCK")
-    | Keyword("FUNCTION")).setParseAction(aw("KEYWORD"))
+    (
+        Keyword("PROGRAM") | Keyword("FUNCTION_BLOCK") | Keyword("FUNCTION")
+    ).setParseAction(aw("KEYWORD"))
     + ident
     + Optional(Suppress(":") + ident)
     + ZeroOrMore(var_decl)
     + ZeroOrMore(statement)
     + oneOf("END_PROGRAM END_FUNCTION_BLOCK END_FUNCTION").setParseAction(aw("KEYWORD"))
 )
-
