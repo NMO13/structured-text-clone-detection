@@ -41,6 +41,7 @@ mulop = (Literal("*") | Literal("/") | Literal("MOD")).setParseAction(aw("OPERAT
 addop = (Literal("+") | Literal("-")).setParseAction(aw("OPERATOR"))
 var_decl = (
     oneOf("VAR_INPUT VAR_OUTPUT VAR_IN_OUT VAR").setParseAction(aw("KEYWORD"))
+    + Optional(Literal("CONSTANT") | Literal("RETAIN") | Literal("NON_RETAIN"))
     + ZeroOrMore(
         designator
         + Suppress(Literal(":"))
