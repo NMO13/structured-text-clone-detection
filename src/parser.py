@@ -59,18 +59,14 @@ relop = (
     | Literal("=")
 ).setParseAction(aw("OPERATOR"))
 booleanop = (Literal("AND") | Literal("OR")).setParseAction(aw("KEYWORD"))
-condfact = (
-    Optional("NOT").setParseAction(aw("KEYWORD"))
-    + Optional("(").setParseAction(aw("MARKER"))
+condfact = ((
+    Literal("NOT").setParseAction(aw("KEYWORD"))
+    + Literal("(")
     + expression
-    + Optional(relop + expression)
-    + Optional(")").setParseAction(aw("MARKER"))
-)
-condterm = (
-    Optional("(").setParseAction(aw("MARKER"))
-    + condfact
-    + ZeroOrMore(Keyword("AND").setParseAction(aw("KEYWORD")) + condfact)
-    + Optional(")").setParseAction(aw("MARKER"))
+    + Literal(")")
+) | (expression + Optional(relop + expression)))
+condterm = condfact + ZeroOrMore(
+    Keyword("AND").setParseAction(aw("KEYWORD")) + condfact
 )
 condition = condterm + ZeroOrMore(
     Literal("OR").setParseAction(aw("KEYWORD")) + condterm
