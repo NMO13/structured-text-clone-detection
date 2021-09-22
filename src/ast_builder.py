@@ -8,6 +8,7 @@ class ASTBuilder:
         text = self.remove_description(text)
         text = self.remove_comments(text)
         result = self.parser.parseString(text)
+        print(result)
         return result
 
     def remove_description(self, text):

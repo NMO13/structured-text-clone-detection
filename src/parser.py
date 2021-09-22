@@ -29,7 +29,7 @@ semicolon = Literal(";").setParseAction(aw("MARKER"))
 ident = Word(alphas + "_", alphanums + "_").setParseAction(aw("TYPE_IDENTIFIER"))
 dtype = Word(alphas + "_", alphanums + "_").setParseAction(aw("DATATYPE"))
 expression = Forward()
-designator = ident + ZeroOrMore((Literal(".") + ident) | (Literal("[").setParseAction(aw("MARKER"))
+designator = ident + ZeroOrMore((Literal(".").setParseAction(aw("MARKER")) + ident) | (Literal("[").setParseAction(aw("MARKER"))
         + expression
         + Literal("]").setParseAction(aw("MARKER"))))
 
@@ -38,7 +38,7 @@ mulop = (Literal("*") | Literal("/") | Literal("MOD")).setParseAction(aw("OPERAT
 addop = (Literal("+") | Literal("-")).setParseAction(aw("OPERATOR"))
 var_decl = (
     oneOf("VAR_INPUT VAR_OUTPUT VAR_IN_OUT VAR").setParseAction(aw("KEYWORD"))
-    + Optional(Literal("CONSTANT") | Literal("RETAIN") | Literal("NON_RETAIN"))
+    + Optional(Literal("CONSTANT").setParseAction(aw("KEYWORD")) | Literal("RETAIN").setParseAction(aw("KEYWORD")) | Literal("NON_RETAIN").setParseAction(aw("KEYWORD")))
     + ZeroOrMore(
         designator
         + Suppress(Literal(":"))
@@ -71,6 +71,7 @@ actpars = (
 single_byte_character = Literal("\\") + Literal("\'")
 double_byte_character = Literal("\"")
 
+#todo is the literal handling correct? Otherwise I have to differentiate between literals and designator in a post processing step
 primary_expression = (
     Combine(oneOf("BYTE WORD DWORD LWORD SINT INT DINT LINT USINT UINT UDINT ULINT REAL LREAL DATE TIME_OF_DAY TOD DATE_AND_TIME DT BOOL BYTE T TIME t") + Literal('#') + Word(alphanums + "_" + "-" + '#') + Optional(
             Literal(".")
@@ -93,7 +94,7 @@ primary_expression = (
         + expression
         + Literal(")").setParseAction(aw("MARKER"))
     )
-    | (QuotedString("\"") | QuotedString("\'"))
+    | (QuotedString("\"") | QuotedString("\'")).setParseAction(aw("LITERAL"))
 )
 
 param << (
@@ -111,16 +112,16 @@ param << (
     )
 )
 
-unary_operator = Literal("-") | Literal("NOT")
+unary_operator = Literal("-").setParseAction(aw("OPERATOR")) | Literal("NOT").setParseAction(aw("OPERATOR"))
 unary_expression = Optional(unary_operator) + primary_expression
-power_expression = unary_expression + ZeroOrMore(Literal("**") + unary_expression)
+power_expression = unary_expression + ZeroOrMore(Literal("**").setParseAction(aw("OPERATOR")) + unary_expression)
 term = power_expression + ZeroOrMore(mulop + power_expression)
 add_expression = term + ZeroOrMore(addop + term)
 equ_expression = add_expression + ZeroOrMore(relop + add_expression)
-comparison = equ_expression + ZeroOrMore((Literal("=") | Literal("<>")) + equ_expression)
-and_expression = comparison + ZeroOrMore((Literal("&") | Literal("AND")) + comparison)
-xor_expression = and_expression + ZeroOrMore(Literal("XOR") + and_expression)
-expression << (xor_expression + ZeroOrMore(Literal("OR") + xor_expression))
+comparison = equ_expression + ZeroOrMore((Literal("=").setParseAction(aw("OPERATOR")) | Literal("<>").setParseAction(aw("OPERATOR"))) + equ_expression)
+and_expression = comparison + ZeroOrMore((Literal("&").setParseAction(aw("OPERATOR")) | Literal("AND").setParseAction(aw("OPERATOR"))) + comparison)
+xor_expression = and_expression + ZeroOrMore(Literal("XOR").setParseAction(aw("OPERATOR")) + and_expression)
+expression << (xor_expression + ZeroOrMore(Literal("OR").setParseAction(aw("OPERATOR")) + xor_expression))
 
 
 
@@ -134,11 +135,11 @@ count_condition = (
     + expression
 )
 
-enumerated_value = Optional(ident + "#") + ident
-subrange = Word(nums) + Literal("..") + Word(nums)
+enumerated_value = Combine(Optional(ident + "#") + ident)
+subrange = Combine(Word(nums) + Literal("..") + Word(nums))
 case_list_element = subrange | Word(nums) | enumerated_value
 case_list = case_list_element + ZeroOrMore("," + case_list_element)
-case_element = case_list + ":" + block
+case_element = case_list.setParseAction(aw("MARKER")) + Suppress(Literal(":")) + block
 statement << (
     (
         Keyword("REPEAT").setParseAction(aw("KEYWORD"))
