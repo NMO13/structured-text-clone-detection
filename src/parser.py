@@ -78,15 +78,19 @@ single_byte_character = Literal("\\") + Literal("'")
 double_byte_character = Literal('"')
 
 integer_type_name = oneOf("SINT INT DINT LINT USINT UINT UDINT ULINT")
-integer_literal = Optional(integer_type_name + "#") + nums
+integer_literal = Optional(integer_type_name + "#") + Word(nums)+ Optional(
+            Literal(".")
+            + Word(nums)
+            + Optional(Literal("E") + Optional(Literal("-")) + Word(nums))
+        )
 real_type_name = oneOf("REAL LREAL")
 real_literal = real_type_name + "#"
 numeric_literal = integer_literal | real_literal
 character_string = (QuotedString('"') | QuotedString("'")).setParseAction(aw("LITERAL"))
-duration = oneOf("T Time") + "#" + Optional("-") + ident
-time_of_day = oneOf("TIME_OF_DAY TOD") + "#" + ident
+duration = oneOf("T Time") + "#" + Optional("-") + Word(alphanums)
+time_of_day = oneOf("TIME_OF_DAY TOD") + "#" + Word(alphanums)
 time_literal = duration | time_of_day
-bit_string_literal = Optional(oneOf("BYTE WORD DWORD LWORD") + "#") + Word(nums + "_" + "-" + "#")
+bit_string_literal = oneOf("BYTE WORD DWORD LWORD") + "#" + Word(nums + "_" + "-" + "#")
 boolean_literal = Optional("BOOL#") + oneOf("1 0 TRUE FALSE")
 constant = (
     numeric_literal
@@ -100,15 +104,11 @@ primary_expression = (
     constant.setParseAction(aw("LITERAL"))
     | Combine(
         oneOf(
-            "BYTE WORD DWORD LWORD SINT INT DINT LINT USINT UINT UDINT ULINT REAL LREAL DATE TIME_OF_DAY TOD DATE_AND_TIME DT BOOL BYTE T TIME t"
+            "DATE TOD DATE_AND_TIME DT t"
         )
         + Literal("#")
         + Word(alphanums + "_" + "-" + "#")
-        + Optional(
-            Literal(".")
-            + Word(nums)
-            + Optional(Literal("E") + Optional(Literal("-")) + Word(nums))
-        )
+
     ).setParseAction(aw("LITERAL"))
     | (designator + Optional(actpars))
     | Combine(
