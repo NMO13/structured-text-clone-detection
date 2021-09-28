@@ -29,12 +29,15 @@ semicolon = Literal(";").setParseAction(aw("MARKER"))
 ident = Word(alphas + "_", alphanums + "_").setParseAction(aw("IDENTIFIER"))
 dtype = Word(alphas + "_", alphanums + "_").setParseAction(aw("DATATYPE"))
 expression = Forward()
-designator = ident + ZeroOrMore(
-    (Literal(".").setParseAction(aw("MARKER")) + ident)
-    | (
-        Literal("[").setParseAction(aw("MARKER"))
-        + expression
-        + Literal("]").setParseAction(aw("MARKER"))
+designator = Combine(
+    ident
+    + ZeroOrMore(
+        (Literal(".").setParseAction(aw("MARKER")) + ident)
+        | (
+            Literal("[").setParseAction(aw("MARKER"))
+            + expression
+            + Literal("]").setParseAction(aw("MARKER"))
+        )
     )
 )
 
@@ -49,7 +52,7 @@ var_decl = (
         | Literal("NON_RETAIN").setParseAction(aw("KEYWORD"))
     )
     + ZeroOrMore(
-        designator
+        designator.setParseAction(aw("DESIGNATOR"))
         + Suppress(Literal(":"))
         + dtype
         + Optional(assign_op + expression)
@@ -77,11 +80,16 @@ actpars = (
 single_byte_character = Literal("\\") + Literal("'")
 double_byte_character = Literal('"')
 
-number_literal = Optional(oneOf("REAL LREAL SINT INT DINT LINT USINT UINT UDINT ULINT") + "#") + Optional("-") + Word(nums) + Optional(
-            Literal(".")
-            + Word(nums)
-            + Optional(Literal("E") + Optional(Literal("-")) + Word(nums))
-        )
+number_literal = (
+    Optional(oneOf("REAL LREAL SINT INT DINT LINT USINT UINT UDINT ULINT") + "#")
+    + Optional("-")
+    + Word(nums)
+    + Optional(
+        Literal(".")
+        + Word(nums)
+        + Optional(Literal("E") + Optional(Literal("-")) + Word(nums))
+    )
+)
 numeric_literal = number_literal
 character_string = (QuotedString('"') | QuotedString("'")).setParseAction(aw("LITERAL"))
 duration = oneOf("T Time") + "#" + Optional("-") + Word(alphanums)
@@ -100,14 +108,11 @@ constant = (
 primary_expression = (
     constant.setParseAction(aw("LITERAL"))
     | Combine(
-        oneOf(
-            "DATE TOD DATE_AND_TIME DT t"
-        )
+        oneOf("DATE TOD DATE_AND_TIME DT t")
         + Literal("#")
         + Word(alphanums + "_" + "-" + "#")
-
     ).setParseAction(aw("LITERAL"))
-    | (designator + Optional(actpars))
+    | (designator.setParseAction(aw("DESIGNATOR")) + Optional(actpars))
     | Combine(
         Word(nums)
         + Optional(
@@ -174,7 +179,7 @@ expression << (
 statement = Forward()
 block = ZeroOrMore(statement)
 count_condition = (
-    designator
+    designator.setParseAction(aw("DESIGNATOR"))
     + assign_op
     + expression
     + Keyword("TO").setParseAction(aw("KEYWORD"))
@@ -196,7 +201,11 @@ statement << (
         + Keyword("END_REPEAT").setParseAction(aw("KEYWORD"))
         + semicolon
     )
-    | (designator + ((assign_op + expression) | actpars) + semicolon)
+    | (
+        designator.setParseAction(aw("DESIGNATOR"))
+        + ((assign_op + expression) | actpars)
+        + semicolon
+    )
     | (
         Keyword("FOR").setParseAction(aw("KEYWORD"))
         + count_condition

@@ -1,15 +1,21 @@
 from src.ast_builder import ASTBuilder
-ast_builder = ASTBuilder()
+from src.vector_generation import similarity_score, create_occurrence_list
+
+def test_process(text):
+    ast_builder = ASTBuilder()
+    tokens = ast_builder.parse(text)
+    similarity_score(create_occurrence_list(tokens), create_occurrence_list(tokens))
 
 text = """
 PROGRAM main
 VAR_INPUT
 i : INT;
 END_VAR
-i:=3;
+i.j.k:=x.y[4];
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
+
 
 ##############
 
@@ -22,7 +28,7 @@ x.y := 0;
 u.v := 3;
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -38,7 +44,7 @@ UNTIL i < j+4;
 END_REPEAT;
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -49,7 +55,7 @@ avg := avg[3].x + 4;
 END_FOR;
 END_PROGRAM
 """
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -67,7 +73,7 @@ END_WHILE;
 avg := avg / 5;
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -79,7 +85,7 @@ END_VAR
 i := 3 + f[5];
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -93,7 +99,7 @@ i := 3;
 END_IF;
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -111,7 +117,7 @@ END_IF;
 x := _BYTE_TO_INT(scene AND BYTE#2#0000_1111);
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -127,7 +133,7 @@ i := 3;
 END_IF;
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -141,7 +147,7 @@ i := 3;
 END_IF;
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -157,7 +163,7 @@ ELSE
 END_IF;
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -177,7 +183,7 @@ ELSE
 END_IF;
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -220,7 +226,7 @@ CASE state OF
 END_CASE;
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 text = """
@@ -234,7 +240,7 @@ CASE state OF
 END_CASE;
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 text = """
@@ -256,7 +262,7 @@ CASE state OF
 END_CASE;
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -268,7 +274,7 @@ END_VAR
 x := foo();
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -281,7 +287,7 @@ x := foo(3);
 x := foo(3, i);
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -294,7 +300,7 @@ ramp(OUT := 3);
 ramp(OUT := 4, RUN := 1);
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -311,7 +317,7 @@ END_IF;
 
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -328,7 +334,7 @@ END_IF;
 
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -345,7 +351,7 @@ END_IF;
 
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -359,7 +365,7 @@ IF DINT_TO_TIME(ABS(TIME_TO_DINT(ramp.TR) - TIME_TO_DINT(ramp.TF)) * DINT#10) > 
 
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -373,7 +379,7 @@ END_VAR
 	END_IF;
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -388,7 +394,7 @@ IF (status > BYTE#0 AND status < BYTE#100) THEN
 END_IF;
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -402,7 +408,7 @@ timer1(in := flame AND in AND motor AND coil1 AND NOT coil2, SECONDS := runtime1
 timer2(in := flame AND in AND motor AND coil1 AND coil2, SECONDS := runtime2, CYCLES := cycles2);
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -415,7 +421,7 @@ END_VAR
 timer2(in := flame AND in AND motor AND coil1 AND coil2, SECONDS := runtime2, CYCLES := cycles2);
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -424,7 +430,7 @@ FUNCTION WATER_DENSITY:REAL
 WATER_DENSITY := (999.83952 + 16.952577*T + -7.9905127E-3*T2 + -4.6241757E-5*T2*T + 1.0584601E-7*T4 + -2.8103006E-10*T4*T) / (1.0 + 0.0168872*T);
 END_FUNCTION"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -436,7 +442,7 @@ IF (tx - last) >= T2 THEN
 END_IF;
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -446,5 +452,5 @@ cmp:="ab";
 cmp:='ab';
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 

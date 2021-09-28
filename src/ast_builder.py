@@ -8,7 +8,7 @@ class ASTBuilder:
         text = self.remove_description(text)
         text = self.remove_comments(text)
         result = self.parser.parseString(text)
-        self.resolve_method_marker(result)
+        result = self.resolve_method_marker(result)
         print(result)
         return result
 
@@ -42,10 +42,33 @@ class ASTBuilder:
         Redeclare method types
         :return:
         """
-        def merge_qualifier(prev_ident, next_ident):
-            prev_ident()
 
+        def get_qualified_name(token, new_tokens):
+            import re
+            subtokens = re.findall('\(.*?\)', token[1])
+            token_list = []
+            for token in subtokens:
+                token = eval(token)
+                if token[0] == "IDENTIFIER":
+                    token_list.append(token)
+            x = ""
+            for token in token_list[:-1]:
+                x += token[1]
+                x += "."
+
+            if x:
+                qualifier = ("QUALIFIED_NAME", x[:-1])
+                new_tokens.append(qualifier)
+            return token_list[-1]
+
+        new_tokens = []
         for i, token in enumerate(parsed_text):
-            if token[0] == "MARKER" and token[1] == ".":
-                merge_qualifier(parsed_text[i-1], parsed_text[i+1])
-
+            if token[0] == "DESIGNATOR":
+                ident = get_qualified_name(token, new_tokens)
+                if parsed_text[i+1][0] == "METHOD_MARKER":
+                    new_tokens.append(("METHOD_IDENTIFIER", ident[1]))
+                else:
+                    new_tokens.append(("VARIABLE_IDENTIFIER", ident[1]))
+            else:
+                new_tokens.append(token)
+        return new_tokens
