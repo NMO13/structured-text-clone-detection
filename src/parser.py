@@ -77,9 +77,28 @@ actpars = (
 single_byte_character = Literal("\\") + Literal("'")
 double_byte_character = Literal('"')
 
-# todo is the literal handling correct? Otherwise I have to differentiate between literals and designator in a post processing step
+integer_type_name = oneOf("SINT INT DINT LINT USINT UINT UDINT ULINT")
+integer_literal = Optional(integer_type_name + "#") + nums
+real_type_name = oneOf("REAL LREAL")
+real_literal = real_type_name + "#"
+numeric_literal = integer_literal | real_literal
+character_string = (QuotedString('"') | QuotedString("'")).setParseAction(aw("LITERAL"))
+duration = oneOf("T Time") + "#" + Optional("-") + ident
+time_of_day = oneOf("TIME_OF_DAY TOD") + "#" + ident
+time_literal = duration | time_of_day
+bit_string_literal = Optional(oneOf("BYTE WORD DWORD LWORD") + "#") + Word(nums + "_" + "-" + "#")
+boolean_literal = Optional("BOOL#") + oneOf("1 0 TRUE FALSE")
+constant = (
+    numeric_literal
+    | character_string
+    | time_literal
+    | bit_string_literal
+    | boolean_literal
+)
+
 primary_expression = (
-    Combine(
+    constant.setParseAction(aw("LITERAL"))
+    | Combine(
         oneOf(
             "BYTE WORD DWORD LWORD SINT INT DINT LINT USINT UINT UDINT ULINT REAL LREAL DATE TIME_OF_DAY TOD DATE_AND_TIME DT BOOL BYTE T TIME t"
         )
@@ -105,7 +124,6 @@ primary_expression = (
         + expression
         + Literal(")").setParseAction(aw("MARKER"))
     )
-    | (QuotedString('"') | QuotedString("'")).setParseAction(aw("LITERAL"))
 )
 
 param << (
