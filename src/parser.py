@@ -77,15 +77,12 @@ actpars = (
 single_byte_character = Literal("\\") + Literal("'")
 double_byte_character = Literal('"')
 
-integer_type_name = oneOf("SINT INT DINT LINT USINT UINT UDINT ULINT")
-integer_literal = Optional(integer_type_name + "#") + Word(nums)+ Optional(
+number_literal = Optional(oneOf("REAL LREAL SINT INT DINT LINT USINT UINT UDINT ULINT") + "#") + Optional("-") + Word(nums) + Optional(
             Literal(".")
             + Word(nums)
             + Optional(Literal("E") + Optional(Literal("-")) + Word(nums))
         )
-real_type_name = oneOf("REAL LREAL")
-real_literal = real_type_name + "#"
-numeric_literal = integer_literal | real_literal
+numeric_literal = number_literal
 character_string = (QuotedString('"') | QuotedString("'")).setParseAction(aw("LITERAL"))
 duration = oneOf("T Time") + "#" + Optional("-") + Word(alphanums)
 time_of_day = oneOf("TIME_OF_DAY TOD") + "#" + Word(alphanums)
