@@ -26,7 +26,7 @@ def annotate(tokentype, t):
 
 
 semicolon = Literal(";").setParseAction(aw("MARKER"))
-ident = Word(alphas + "_", alphanums + "_").setParseAction(aw("TYPE_IDENTIFIER"))
+ident = Word(alphas + "_", alphanums + "_").setParseAction(aw("IDENTIFIER"))
 dtype = Word(alphas + "_", alphanums + "_").setParseAction(aw("DATATYPE"))
 expression = Forward()
 designator = ident + ZeroOrMore(

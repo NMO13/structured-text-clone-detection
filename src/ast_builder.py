@@ -8,6 +8,7 @@ class ASTBuilder:
         text = self.remove_description(text)
         text = self.remove_comments(text)
         result = self.parser.parseString(text)
+        self.resolve_method_marker(result)
         print(result)
         return result
 
@@ -36,8 +37,15 @@ class ASTBuilder:
 
         return res
 
-    def post_process(self, parsed_text):
+    def resolve_method_marker(self, parsed_text):
         """
         Redeclare method types
         :return:
         """
+        def merge_qualifier(prev_ident, next_ident):
+            prev_ident()
+
+        for i, token in enumerate(parsed_text):
+            if token[0] == "MARKER" and token[1] == ".":
+                merge_qualifier(parsed_text[i-1], parsed_text[i+1])
+
