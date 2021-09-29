@@ -43,27 +43,6 @@ class ASTBuilder:
         :return:
         """
 
-        def get_qualified_name(token, new_tokens):
-            import re
-
-            subtokens = re.findall("\(.*?\)", token[1])
-            token_list = []
-            for token in subtokens:
-                token = eval(token)
-                if token[0] == "IDENTIFIER":
-                    token_list.append(token)
-                elif token[1] != ".":
-                    new_tokens.append(token)
-            x = ""
-            for token in token_list[:-1]:
-                x += token[1]
-                x += "."
-
-            if x:
-                qualifier = ("QUALIFIED_NAME", x[:-1])
-                new_tokens.append(qualifier)
-            return token_list[-1]
-
         new_tokens = []
         qualified_name = ""
         for i, token in enumerate(parsed_text):

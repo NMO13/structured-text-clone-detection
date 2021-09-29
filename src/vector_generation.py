@@ -36,14 +36,16 @@ def get_unshared_keys(categoryA, categoryB):
 def create_similarity_vector(tokensA, tokensB):
     sim_score = []
     for category, v in tokensA.items():
+        categoryA = tokensA[category]
+        categoryB = tokensB[category]
         # get all shared keys
-        shared_keys = get_shared_keys(tokensA[category], tokensB[category])
+        shared_keys = get_shared_keys(categoryA, categoryB)
 
         # get all keys exclusively in A
-        exclusive_keysA = get_unshared_keys(tokensA[category], tokensB[category])
+        exclusive_keysA = get_unshared_keys(categoryA, categoryB)
 
         # get all keys exclusively in B
-        exclusive_keysB = get_unshared_keys(tokensB[category], tokensA[category])
+        exclusive_keysB = get_unshared_keys(categoryB, categoryA)
 
         if not (shared_keys or exclusive_keysA or exclusive_keysB):
             sim_score.append(0.5)
@@ -53,16 +55,16 @@ def create_similarity_vector(tokensA, tokensB):
         freq_sum = 0
 
         for shared_key in shared_keys:
-            freq_diff += tokensA[category][shared_key] - tokensB[category][shared_key]
-            freq_sum += tokensA[category][shared_key] + tokensB[category][shared_key]
+            freq_diff += categoryA[shared_key] - categoryB[shared_key]
+            freq_sum += categoryA[shared_key] + categoryB[shared_key]
 
         for exclusiveA in exclusive_keysA:
-            freq_diff += tokensA[category][exclusiveA]
-            freq_sum += tokensA[category][exclusiveA]
+            freq_diff += categoryA[exclusiveA]
+            freq_sum += categoryA[exclusiveA]
 
         for exclusiveB in exclusive_keysB:
-            freq_diff += -tokensA[category][exclusiveB]
-            freq_sum += tokensA[category][exclusiveB]
+            freq_diff += -categoryA[exclusiveB]
+            freq_sum += categoryA[exclusiveB]
 
         sim_score.append(1 - freq_diff / freq_sum)
     return sim_score
