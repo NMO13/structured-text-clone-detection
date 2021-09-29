@@ -1,10 +1,22 @@
 from src.ast_builder import ASTBuilder
-from src.vector_generation import similarity_score, create_occurrence_list
+from src.vector_generation import create_similarity_vector, create_occurrence_list
 
 def test_process(text):
     ast_builder = ASTBuilder()
     tokens = ast_builder.parse(text)
-    similarity_score(create_occurrence_list(tokens), create_occurrence_list(tokens))
+    print("Similarity Vector: {}".format(create_similarity_vector(create_occurrence_list(tokens), create_occurrence_list(tokens))))
+
+text = """
+PROGRAM main
+VAR_INPUT
+i : INT;
+END_VAR
+foo(x.y.z);
+foo(x.y.z());
+i.j.k:=x.y.z[v+1];
+END_PROGRAM"""
+
+test_process(text)
 
 text = """
 PROGRAM main

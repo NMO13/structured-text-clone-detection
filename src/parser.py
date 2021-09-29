@@ -29,17 +29,15 @@ semicolon = Literal(";").setParseAction(aw("MARKER"))
 ident = Word(alphas + "_", alphanums + "_").setParseAction(aw("IDENTIFIER"))
 dtype = Word(alphas + "_", alphanums + "_").setParseAction(aw("DATATYPE"))
 expression = Forward()
-designator = Combine(
-    ident
-    + ZeroOrMore(
-        (Literal(".").setParseAction(aw("MARKER")) + ident)
-        | (
-            Literal("[").setParseAction(aw("MARKER"))
-            + expression
-            + Literal("]").setParseAction(aw("MARKER"))
-        )
+designator = ident + ZeroOrMore(
+    (Literal(".").setParseAction(aw("MARKER")) + ident)
+    | (
+        Literal("[").setParseAction(aw("MARKER"))
+        + expression
+        + Literal("]").setParseAction(aw("MARKER"))
     )
 )
+
 
 assign_op = Literal(":=").setParseAction(aw("OPERATOR"))
 mulop = (Literal("*") | Literal("/") | Literal("MOD")).setParseAction(aw("OPERATOR"))
@@ -52,7 +50,7 @@ var_decl = (
         | Literal("NON_RETAIN").setParseAction(aw("KEYWORD"))
     )
     + ZeroOrMore(
-        designator.setParseAction(aw("DESIGNATOR"))
+        designator
         + Suppress(Literal(":"))
         + dtype
         + Optional(assign_op + expression)
@@ -112,7 +110,7 @@ primary_expression = (
         + Literal("#")
         + Word(alphanums + "_" + "-" + "#")
     ).setParseAction(aw("LITERAL"))
-    | (designator.setParseAction(aw("DESIGNATOR")) + Optional(actpars))
+    | (designator + Optional(actpars))
     | Combine(
         Word(nums)
         + Optional(
@@ -179,7 +177,7 @@ expression << (
 statement = Forward()
 block = ZeroOrMore(statement)
 count_condition = (
-    designator.setParseAction(aw("DESIGNATOR"))
+    designator
     + assign_op
     + expression
     + Keyword("TO").setParseAction(aw("KEYWORD"))
@@ -201,11 +199,7 @@ statement << (
         + Keyword("END_REPEAT").setParseAction(aw("KEYWORD"))
         + semicolon
     )
-    | (
-        designator.setParseAction(aw("DESIGNATOR"))
-        + ((assign_op + expression) | actpars)
-        + semicolon
-    )
+    | (designator + ((assign_op + expression) | actpars) + semicolon)
     | (
         Keyword("FOR").setParseAction(aw("KEYWORD"))
         + count_condition

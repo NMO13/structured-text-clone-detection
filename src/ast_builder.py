@@ -45,12 +45,15 @@ class ASTBuilder:
 
         def get_qualified_name(token, new_tokens):
             import re
-            subtokens = re.findall('\(.*?\)', token[1])
+
+            subtokens = re.findall("\(.*?\)", token[1])
             token_list = []
             for token in subtokens:
                 token = eval(token)
                 if token[0] == "IDENTIFIER":
                     token_list.append(token)
+                elif token[1] != ".":
+                    new_tokens.append(token)
             x = ""
             for token in token_list[:-1]:
                 x += token[1]
@@ -62,13 +65,28 @@ class ASTBuilder:
             return token_list[-1]
 
         new_tokens = []
+        qualified_name = ""
         for i, token in enumerate(parsed_text):
-            if token[0] == "DESIGNATOR":
-                ident = get_qualified_name(token, new_tokens)
-                if parsed_text[i+1][0] == "METHOD_MARKER":
-                    new_tokens.append(("METHOD_IDENTIFIER", ident[1]))
+            if token[0] == "IDENTIFIER":
+                if parsed_text[i + 1][1] == ".":
+                    qualified_name += token[1] + "."
+                elif parsed_text[i + 1][0] == "METHOD_MARKER":
+                    new_tokens.append(("METHOD_IDENTIFIER", token[1]))
+
+                    # add qualified name if available
+                    if qualified_name:
+                        qualifier = ("QUALIFIED_NAME", qualified_name[:-1])
+                        new_tokens.append(qualifier)
+                        qualified_name = ""
+
                 else:
-                    new_tokens.append(("VARIABLE_IDENTIFIER", ident[1]))
+                    new_tokens.append(("VARIABLE_IDENTIFIER", token[1]))
+
+                    # add qualified name if available
+                    if qualified_name:
+                        qualifier = ("QUALIFIED_NAME", qualified_name[:-1])
+                        new_tokens.append(qualifier)
+                        qualified_name = ""
             else:
                 new_tokens.append(token)
         return new_tokens
