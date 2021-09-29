@@ -7,10 +7,18 @@ from src.nn.train import train_net, predict
 creator = ASTBuilder()
 with open('./st/SDD_NH3.ST') as f:
     tokens = creator.parse(f.read())
-    sim_vector = create_similarity_vector(create_occurrence_list(tokens), create_occurrence_list(tokens))
-    print(sim_vector)
-    X = np.tile(sim_vector,(4,1))
-    y = np.ones(4)
+    sim_vector1 = create_similarity_vector(create_occurrence_list(tokens), create_occurrence_list(tokens))
+    print(sim_vector1)
+
+with open('./st/ACTUATOR_3P.ST') as f:
+    tokens = creator.parse(f.read())
+    sim_vector2 = create_similarity_vector(create_occurrence_list(tokens), create_occurrence_list(tokens))
+    print(sim_vector2)
+
+    sim_vectors = np.array([sim_vector1, sim_vector2])
+
+    X = np.tile(sim_vectors,(4,1))
+    y = np.tile(np.array([[1], [0]]), (4, 1))
     net = train_net(X, y)
-    print(predict(net, [sim_vector]))
+    print(torch.round(predict(net, [sim_vector1])))
 

@@ -3,16 +3,15 @@ from torch import optim
 from src.nn.network import NeuralNetwork
 from torch.utils.data import Dataset, DataLoader
 
-EPOCHS = 50
+EPOCHS = 80
 BATCH_SIZE = 64
 LEARNING_RATE = 0.001
 
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-print('Using {} device'.format(device))
+device = "cuda" if torch.cuda.is_available() else "cpu"
+print("Using {} device".format(device))
 
 
 class TrainData(Dataset):
-
     def __init__(self, X_data, y_data):
         self.X_data = X_data
         self.y_data = y_data
@@ -33,14 +32,14 @@ def binary_acc(y_pred, y_test):
 
     return acc
 
+
 def train_net(X, y):
     net = NeuralNetwork()
     net.to(device)
     criterion = torch.nn.BCEWithLogitsLoss()
     optimizer = optim.Adam(net.parameters(), lr=LEARNING_RATE)
 
-    train_data = TrainData(torch.FloatTensor(X),
-                           torch.FloatTensor(y))
+    train_data = TrainData(torch.FloatTensor(X), torch.FloatTensor(y))
     train_loader = DataLoader(dataset=train_data, batch_size=BATCH_SIZE, shuffle=True)
     net.train()
     for e in range(1, EPOCHS + 1):
@@ -52,8 +51,8 @@ def train_net(X, y):
 
             y_pred = net(X_batch)
 
-            loss = criterion(y_pred, y_batch.unsqueeze(1))
-            acc = binary_acc(y_pred, y_batch.unsqueeze(1))
+            loss = criterion(y_pred, y_batch)
+            acc = binary_acc(y_pred, y_batch)
 
             loss.backward()
             optimizer.step()
@@ -62,8 +61,10 @@ def train_net(X, y):
             epoch_acc += acc.item()
 
         print(
-            f'Epoch {e + 0:03}: | Loss: {epoch_loss / len(train_loader):.5f} | Acc: {epoch_acc / len(train_loader):.3f}')
+            f"Epoch {e + 0:03}: | Loss: {epoch_loss / len(train_loader):.5f} | Acc: {epoch_acc / len(train_loader):.3f}"
+        )
     return net
+
 
 def predict(net, sim_vector):
     return torch.sigmoid(net(torch.FloatTensor(sim_vector).to(device)))
