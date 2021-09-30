@@ -90,12 +90,12 @@ number_literal = Combine(
 ).setParseAction(aw("LITERAL"))
 
 numeric_literal = number_literal
-character_string = (QuotedString('"') | QuotedString("'")).setParseAction(aw("LITERAL"))
-duration = Combine(oneOf("T Time") + "#" + Optional("-") + Word(alphanums))
-time_of_day = Combine(oneOf("TIME_OF_DAY TOD") + "#" + Word(alphanums))
+character_string = Optional(oneOf("STRING WSTRING") + "#") + (QuotedString('"') | QuotedString("'")).setParseAction(aw("LITERAL"))
+duration = Combine(oneOf("T TIME").setParseAction(aw("KEYWORD")) + "#" + Optional("-") + Word(alphanums))
+time_of_day = Combine(oneOf("TIME_OF_DAY TOD").setParseAction(aw("KEYWORD")) + "#" + Word(alphanums))
 time_literal = duration | time_of_day
-bit_string_literal = Combine(oneOf("BYTE WORD DWORD LWORD") + "#" + Word(alphanums + "_" + "-" + "#"))
-boolean_literal = Combine(Optional("BOOL#") + oneOf("1 0 TRUE FALSE"))
+bit_string_literal = Combine(oneOf("BYTE WORD DWORD LWORD").setParseAction(aw("KEYWORD")) + "#" + Word(alphanums + "_" + "-" + "#"))
+boolean_literal = Combine(Optional("BOOL#").setParseAction(aw("KEYWORD")) + oneOf("1 0 TRUE FALSE").setParseAction(aw("KEYWORD")))
 constant = (
     numeric_literal
     | character_string
@@ -109,7 +109,7 @@ primary_expression = (
     | Combine(
         oneOf("DATE TOD DATE_AND_TIME DT t")
         + Literal("#")
-        + Word(alphanums + "_" + "-" + "#")
+        + Word(alphanums + "_" + "-" + "#" + ".")
     ).setParseAction(aw("LITERAL"))
     | (designator + Optional(actpars))
     | (
@@ -191,9 +191,7 @@ statement << (
         + block
         + Keyword("UNTIL").setParseAction(aw("KEYWORD"))
         + expression
-        + semicolon
         + Keyword("END_REPEAT").setParseAction(aw("KEYWORD"))
-        + semicolon
     )
     | (designator + ((assign_op + expression) | actpars) + semicolon)
     | (
@@ -240,6 +238,7 @@ statement << (
     )
     | (Keyword("RETURN").setParseAction(aw("KEYWORD")) + semicolon)
     | exit_statement + semicolon
+    | semicolon
 )
 
 parser = (

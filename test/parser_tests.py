@@ -10,6 +10,7 @@ text = """
 PROGRAM main
 VAR_INPUT
 i : INT;
+MIN_TIME_MS :	TIME := t#1s; 
 END_VAR
 foo(x.y.z);
 foo(x.y.z());
@@ -53,7 +54,7 @@ END_VAR
 i := 4;
 REPEAT
 i := i + 1;
-UNTIL i < j+4;
+UNTIL i < j+4
 END_REPEAT;
 END_PROGRAM"""
 
