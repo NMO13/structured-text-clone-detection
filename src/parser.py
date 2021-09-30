@@ -75,27 +75,27 @@ actpars = (
     + Literal(")").setParseAction(aw("METHOD_MARKER"))
 )
 
-single_byte_character = Literal("\\") + Literal("'")
-double_byte_character = Literal('"')
-
-number_literal = Combine(
-    Optional(oneOf("REAL LREAL SINT INT DINT LINT USINT UINT UDINT ULINT") + "#")
-    + Optional("-")
-    + Word(nums)
-    + Optional(
+signed_real_number = Optional("-") + Word(nums) + Optional(
         Literal(".")
         + Word(nums)
         + Optional(Literal("E") + Optional(Literal("-")) + Word(nums))
     )
-).setParseAction(aw("LITERAL"))
-
-numeric_literal = number_literal
-character_string = Optional(oneOf("STRING WSTRING") + "#") + (QuotedString('"') | QuotedString("'")).setParseAction(aw("LITERAL"))
+signed_integer = Optional(oneOf("+ -")) + Word(nums)
+binary_integer = "2#" + Word("10_")
+octal_integer = "8#" + Word("01234567")
+hex_integer = "16#" + Word(nums+"ABCDEF")
+integer_type_name = oneOf("SINT INT DINT LINT USINT UINT UDINT ULINT")
+real_type_name = oneOf("REAL LREAL")
+integer_literal = Combine(Optional(integer_type_name + "#") + (binary_integer | octal_integer | hex_integer | signed_real_number))
+real_literal = Combine(Optional(real_type_name + "#") + signed_real_number)
+numeric_literal = integer_literal | real_literal
+character_string = Combine(Optional(oneOf("STRING WSTRING") + "#") + (QuotedString('"') | QuotedString("'")))
 duration = Combine(oneOf("T TIME").setParseAction(aw("KEYWORD")) + "#" + Optional("-") + Word(alphanums))
 time_of_day = Combine(oneOf("TIME_OF_DAY TOD").setParseAction(aw("KEYWORD")) + "#" + Word(alphanums))
 time_literal = duration | time_of_day
 bit_string_literal = Combine(oneOf("BYTE WORD DWORD LWORD").setParseAction(aw("KEYWORD")) + "#" + Word(alphanums + "_" + "-" + "#"))
 boolean_literal = Combine(Optional("BOOL#").setParseAction(aw("KEYWORD")) + oneOf("1 0 TRUE FALSE").setParseAction(aw("KEYWORD")))
+
 constant = (
     numeric_literal
     | character_string

@@ -50,6 +50,7 @@ text = """
 PROGRAM main
 VAR_INPUT
 i : INT;
+S1 :	BYTE := 2#1111_1111;
 END_VAR
 i := 4;
 REPEAT
