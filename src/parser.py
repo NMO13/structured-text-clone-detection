@@ -94,7 +94,7 @@ character_string = (QuotedString('"') | QuotedString("'")).setParseAction(aw("LI
 duration = Combine(oneOf("T Time") + "#" + Optional("-") + Word(alphanums))
 time_of_day = Combine(oneOf("TIME_OF_DAY TOD") + "#" + Word(alphanums))
 time_literal = duration | time_of_day
-bit_string_literal = Combine(oneOf("BYTE WORD DWORD LWORD") + "#" + Word(nums + "_" + "-" + "#"))
+bit_string_literal = Combine(oneOf("BYTE WORD DWORD LWORD") + "#" + Word(alphanums + "_" + "-" + "#"))
 boolean_literal = Combine(Optional("BOOL#") + oneOf("1 0 TRUE FALSE"))
 constant = (
     numeric_literal

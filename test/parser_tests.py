@@ -14,6 +14,7 @@ END_VAR
 foo(x.y.z);
 foo(x.y.z());
 i.j.k:=x.y.z[v+1];
+Swap_Byte2 := DWORD#16#FF00FF00;
 END_PROGRAM"""
 
 test_process(text)
@@ -65,6 +66,12 @@ PROGRAM main
 FOR i := 0 TO 10 DO
 avg := avg[3].x + 4;
 END_FOR;
+
+FOR i := func(3) TO 10 DO
+avg := avg[3].x + 4;
+EXIT;
+END_FOR;
+
 END_PROGRAM
 """
 test_process(text)
