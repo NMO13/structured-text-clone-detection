@@ -78,7 +78,7 @@ actpars = (
 single_byte_character = Literal("\\") + Literal("'")
 double_byte_character = Literal('"')
 
-number_literal = (
+number_literal = Combine(
     Optional(oneOf("REAL LREAL SINT INT DINT LINT USINT UINT UDINT ULINT") + "#")
     + Optional("-")
     + Word(nums)
@@ -87,14 +87,15 @@ number_literal = (
         + Word(nums)
         + Optional(Literal("E") + Optional(Literal("-")) + Word(nums))
     )
-)
+).setParseAction(aw("LITERAL"))
+
 numeric_literal = number_literal
 character_string = (QuotedString('"') | QuotedString("'")).setParseAction(aw("LITERAL"))
-duration = oneOf("T Time") + "#" + Optional("-") + Word(alphanums)
-time_of_day = oneOf("TIME_OF_DAY TOD") + "#" + Word(alphanums)
+duration = Combine(oneOf("T Time") + "#" + Optional("-") + Word(alphanums))
+time_of_day = Combine(oneOf("TIME_OF_DAY TOD") + "#" + Word(alphanums))
 time_literal = duration | time_of_day
-bit_string_literal = oneOf("BYTE WORD DWORD LWORD") + "#" + Word(nums + "_" + "-" + "#")
-boolean_literal = Optional("BOOL#") + oneOf("1 0 TRUE FALSE")
+bit_string_literal = Combine(oneOf("BYTE WORD DWORD LWORD") + "#" + Word(nums + "_" + "-" + "#"))
+boolean_literal = Combine(Optional("BOOL#") + oneOf("1 0 TRUE FALSE"))
 constant = (
     numeric_literal
     | character_string
@@ -111,14 +112,6 @@ primary_expression = (
         + Word(alphanums + "_" + "-" + "#")
     ).setParseAction(aw("LITERAL"))
     | (designator + Optional(actpars))
-    | Combine(
-        Word(nums)
-        + Optional(
-            Literal(".")
-            + Word(nums)
-            + Optional(Literal("E") + Optional(Literal("-")) + Word(nums))
-        )
-    ).setParseAction(aw("LITERAL"))
     | (
         Literal("(").setParseAction(aw("MARKER"))
         + expression
