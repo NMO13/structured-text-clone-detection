@@ -182,6 +182,8 @@ subrange = Combine(Word(nums) + Literal("..") + Word(nums))
 case_list_element = subrange | Word(nums) | enumerated_value
 case_list = case_list_element + ZeroOrMore("," + case_list_element)
 case_element = case_list.setParseAction(aw("MARKER")) + Suppress(Literal(":")) + block
+for_list = expression + Keyword("TO").setParseAction(aw("KEYWORD")) + expression + Optional(Keyword("BY").setParseAction(aw("KEYWORD")) + expression)
+
 statement << (
     (
         Keyword("REPEAT").setParseAction(aw("KEYWORD"))
@@ -195,7 +197,9 @@ statement << (
     | (designator + ((assign_op + expression) | actpars) + semicolon)
     | (
         Keyword("FOR").setParseAction(aw("KEYWORD"))
-        + count_condition
+        + ident
+        + assign_op
+        + for_list
         + Keyword("DO").setParseAction(aw("KEYWORD"))
         + block
         + Keyword("END_FOR").setParseAction(aw("KEYWORD"))
