@@ -43,7 +43,7 @@ assign_op = Literal(":=").setParseAction(aw("OPERATOR"))
 mulop = (Literal("*") | Literal("/") | Literal("MOD")).setParseAction(aw("OPERATOR"))
 addop = (Literal("+") | Literal("-")).setParseAction(aw("OPERATOR"))
 var_decl = (
-    oneOf("VAR_INPUT VAR_OUTPUT VAR_IN_OUT VAR").setParseAction(aw("KEYWORD"))
+    oneOf("VAR_INPUT VAR_OUTPUT VAR_IN_OUT VAR VAR_EXTERNAL").setParseAction(aw("KEYWORD"))
     + Optional(
         Literal("CONSTANT").setParseAction(aw("KEYWORD"))
         | Literal("RETAIN").setParseAction(aw("KEYWORD"))
@@ -183,6 +183,7 @@ case_list_element = subrange | Word(nums) | enumerated_value
 case_list = case_list_element + ZeroOrMore("," + case_list_element)
 case_element = case_list.setParseAction(aw("MARKER")) + Suppress(Literal(":")) + block
 for_list = expression + Keyword("TO").setParseAction(aw("KEYWORD")) + expression + Optional(Keyword("BY").setParseAction(aw("KEYWORD")) + expression)
+exit_statement = Keyword("EXIT").setParseAction(aw("KEYWORD"))
 
 statement << (
     (
@@ -238,6 +239,7 @@ statement << (
         + semicolon
     )
     | (Keyword("RETURN").setParseAction(aw("KEYWORD")) + semicolon)
+    | exit_statement + semicolon
 )
 
 parser = (
