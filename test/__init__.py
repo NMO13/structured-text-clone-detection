@@ -1,7 +1,8 @@
+import os
 from os import listdir
 from os.path import isfile, join
 from src.vector_generation import create_similarity_vector, create_occurrence_list
-st_path = "/home/martin/Downloads/synthetic data/complete OSCAT/original"
+st_path = os.path.join(os.environ.get("DATA_PATH"), "original")
 onlyfiles = [join(st_path, f) for f in listdir(st_path) if isfile(join(st_path, f))]
 print(onlyfiles)
 
