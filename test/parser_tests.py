@@ -7,16 +7,78 @@ def test_process(text):
     print("Similarity Vector: {}".format(create_similarity_vector(create_occurrence_list(tokens), create_occurrence_list(tokens))))
 
 text = """
-PROGRAM main
+FUNCTION_BLOCK GEN_BIT
 VAR_INPUT
-i : INT;
-MIN_TIME_MS :	TIME := t#1s; 
+	IN0 :	DWORD;
+	IN1 :	DWORD;
+	IN2 :	DWORD;
+	IN3 :	DWORD;
+	CLK :	BOOL;
+	STEPS :	INT;
+	REP :	INT;
+	RST :	BOOL;
 END_VAR
-foo(x.y.z);
-foo(x.y.z());
-i.j.k:=x.y.z[v+1];
-Swap_Byte2 := DWORD#16#FF00FF00;
-END_PROGRAM"""
+VAR_OUTPUT
+	Q0 :	BOOL;
+	Q1 :	BOOL;
+	Q2 :	BOOL;
+	Q3 :	BOOL;
+	CNT :	INT;
+	RUN :	BOOL;
+END_VAR
+VAR
+	r0 :	DWORD;
+	r1 :	DWORD;
+	r2 :	DWORD;
+	r3 :	DWORD;
+	rx :	INT := 1;
+END_VAR
+IF clk AND NOT rst THEN
+	run := (rep = 0) OR (rx <= rep);
+	IF run THEN
+		IF cnt = steps THEN
+			cnt := 0;
+		END_IF;
+		IF cnt = 0 THEN
+			r0 := in0;
+			r1 := in1;
+			r2 := in2;
+x := 1;
+			r3 := in3;
+n := 1;
+		END_IF;
+		IF (cnt < steps) THEN
+            Q0 := BIT_OF_DWORD(r0,0);  
+            Q1 := BIT_OF_DWORD(r1,0);  
+            Q2 := BIT_OF_DWORD(r2,0);  
+            Q3 := BIT_OF_DWORD(r3,0);  
+			r0 := SHR(r0,1);
+			r1 := SHR(r1,1);
+			r2 := SHR(r2,1);
+			r3 := SHR(r3,1);
+k := 1;
+		END_IF;
+		cnt := cnt +1;
+		IF (cnt = steps) AND (rep <> 0) THEN rx := rx +1; END_IF;
+		IF (rx > rep) AND (rep <> 0) THEN run := FALSE; END_IF;
+	END_IF;
+ELSE
+	IF rst THEN
+		run := FALSE;
+		Q0 := FALSE;
+		Q1 := FALSE;
+		Q2 := FALSE;
+x := 1;
+		r0 := DWORD#0;
+		r1 := DWORD#0;
+		r2 := DWORD#0;
+		r3 := DWORD#0;
+		cnt := 0;
+		rx := 1;
+	END_IF;
+END_IF;
+END_FUNCTION_BLOCK
+"""
 
 test_process(text)
 
