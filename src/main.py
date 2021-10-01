@@ -6,6 +6,7 @@ from src.vector_generation import create_similarity_vector, create_occurrence_li
 
 data_path = os.path.join(os.environ.get("DATA_PATH"))
 registry_path = os.path.join(data_path, "registry")
+non_parsable_counter = 0
 
 def read_registry(data_path):
     csv_file = os.path.join(registry_path, "registry.csv")
@@ -24,13 +25,15 @@ def get_st_file(filenumber):
         return f.read()
 
 def add_datapoint(filenumber, creator, tokens_first, label, X, y):
+    global non_parsable_counter
     print("Parsing second file: {} ({})".format(registry[filenumber]["Filename"].strip(), registry[filenumber]["#ID"].strip()))
     second_file = get_st_file(filenumber)
-   # try:
-    tokens_second = creator.parse(second_file)
-   # except Exception as e:
-   #     print("Could not be parsed")
-   #     return
+    try:
+        tokens_second = creator.parse(second_file)
+    except Exception as e:
+        print("Could not be parsed.")
+        non_parsable_counter += 1
+        return
     sim_vector = create_similarity_vector(create_occurrence_list(tokens_first), create_occurrence_list(tokens_second))
     X.append(sim_vector)
     y.append(np.array([label]))
