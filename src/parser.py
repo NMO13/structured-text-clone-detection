@@ -84,7 +84,7 @@ signed_integer = Optional(oneOf("+ -")) + Word(nums)
 binary_integer = "2#" + Word("10_")
 octal_integer = "8#" + Word("01234567")
 hex_integer = "16#" + Word(nums+"ABCDEF")
-integer_type_name = oneOf("SINT INT DINT LINT USINT UINT UDINT ULINT")
+integer_type_name = oneOf("SINT INT DINT LINT USINT UINT UDINT ULINT sint int dint lint usint uint udint ulint")
 real_type_name = oneOf("REAL LREAL")
 integer_literal = Combine(Optional(integer_type_name + "#") + (binary_integer | octal_integer | hex_integer | signed_real_number))
 real_literal = Combine(Optional(real_type_name + "#") + signed_real_number)
@@ -127,15 +127,15 @@ param << (
             (
                 relop
                 | arithmeticop
-                | booleanop + Optional("NOT").setParseAction(aw("KEYWORD"))
+                | booleanop + oneOf("NOT not").setParseAction(aw("KEYWORD"))
             )
             + expression
         )
     )
 )
 
-unary_operator = Literal("-").setParseAction(aw("OPERATOR")) | Literal(
-    "NOT"
+unary_operator = Literal("-").setParseAction(aw("OPERATOR")) | oneOf(
+    "NOT not"
 ).setParseAction(aw("OPERATOR"))
 unary_expression = Optional(unary_operator) + primary_expression
 power_expression = unary_expression + ZeroOrMore(
@@ -154,12 +154,12 @@ comparison = equ_expression + ZeroOrMore(
 and_expression = comparison + ZeroOrMore(
     (
         Literal("&").setParseAction(aw("OPERATOR"))
-        | Literal("AND").setParseAction(aw("OPERATOR"))
+        | oneOf("AND and").setParseAction(aw("OPERATOR"))
     )
     + comparison
 )
 xor_expression = and_expression + ZeroOrMore(
-    Literal("XOR").setParseAction(aw("OPERATOR")) + and_expression
+    oneOf("XOR xor").setParseAction(aw("OPERATOR")) + and_expression
 )
 expression << (
     xor_expression
