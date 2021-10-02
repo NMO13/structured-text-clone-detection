@@ -55,7 +55,7 @@ def create_similarity_vector(tokensA, tokensB):
         freq_sum = 0
 
         for shared_key in shared_keys:
-            freq_diff += categoryA[shared_key] - categoryB[shared_key]
+            freq_diff += abs(categoryA[shared_key] - categoryB[shared_key])
             freq_sum += categoryA[shared_key] + categoryB[shared_key]
 
         for exclusiveA in exclusive_keysA:
@@ -63,8 +63,10 @@ def create_similarity_vector(tokensA, tokensB):
             freq_sum += categoryA[exclusiveA]
 
         for exclusiveB in exclusive_keysB:
-            freq_diff += -categoryB[exclusiveB]
+            freq_diff += categoryB[exclusiveB]
             freq_sum += categoryB[exclusiveB]
 
-        sim_score.append(1 - freq_diff / freq_sum)
+        score = 1 - freq_diff / freq_sum
+        assert 0 <= score <= 1
+        sim_score.append(score)
     return sim_score
