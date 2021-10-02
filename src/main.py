@@ -83,8 +83,26 @@ def main():
             if file_number_first == non_clone_nr:
                 continue
             add_datapoint(non_clone_nr, creator, tokens_first, 0, X, y)
-
         print("Finished file: {}".format(originalfile))
+
+    save_data(X, y)
+
+
+
+def load_data():
+    with open('../data/test.npy', 'rb') as f:
+        X = np.load(f)
+        y = np.load(f)
+        return X, y
+
+def save_data(X, y):
+    import os
+    if os.path.exists("../data/test.npy"):
+        os.remove("../data/test.npy")
+
+    with open('../data/test.npy', 'wb') as f:
+        np.save(f, X)
+        np.save(f, y)
 
 if __name__ == "__main__":
     main()

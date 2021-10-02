@@ -1,1 +1,2 @@
 pyparsing==2.4.7
+pytorch==1.8.1
