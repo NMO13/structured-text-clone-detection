@@ -9,7 +9,6 @@ class ASTBuilder:
         text = self.remove_comments(text)
         result = self.parser.parseString(text)
         result = self.resolve_method_marker(result)
-        print(result)
         return result
 
     def remove_description(self, text):

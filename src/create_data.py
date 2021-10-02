@@ -1,4 +1,5 @@
 import os
+from tqdm import tqdm
 import csv
 import numpy as np
 from src.ast_builder import ASTBuilder
@@ -9,7 +10,7 @@ originalpath = os.path.join(data_path, "original")
 registry_path = os.path.join(data_path, "registry")
 non_parsable_counter = 0
 
-def read_registry(data_path):
+def read_registry():
     csv_file = os.path.join(registry_path, "registry.csv")
     file_dict = {}
     with open(csv_file) as csv_file:
@@ -18,7 +19,7 @@ def read_registry(data_path):
             file_dict[row["#ID"]] = row
     return file_dict
 
-registry = read_registry(data_path)
+registry = read_registry()
 
 def get_clone_file(filenumber):
     path_to_file = os.path.join(data_path, "originalandclones", "clones", registry[filenumber]["Filename"].strip())
@@ -32,12 +33,10 @@ def get_registry_file(filename):
 
 def add_datapoint(filenumber, creator, tokens_first, label, X, y):
     global non_parsable_counter
-    print("Parsing second file: {} ({})".format(registry[filenumber]["Filename"].strip(), registry[filenumber]["#ID"].strip()))
     second_file = get_clone_file(filenumber)
     try:
         tokens_second = creator.parse(second_file)
     except Exception as e:
-        print("Could not be parsed.")
         non_parsable_counter += 1
         return
     sim_vector = create_similarity_vector(create_occurrence_list(tokens_first), create_occurrence_list(tokens_second))
@@ -53,7 +52,8 @@ def main():
     X = []
     y = []
 
-    for originalfile in originalfiles:
+    for i in tqdm(range(len(originalfiles))):
+        originalfile = originalfiles[i]
         content = get_registry_file(originalfile)
         file_number_first = content[0].split(" ")[3][1:]
         first_file = get_clone_file(file_number_first)
@@ -83,9 +83,10 @@ def main():
             if file_number_first == non_clone_nr:
                 continue
             add_datapoint(non_clone_nr, creator, tokens_first, 0, X, y)
-        print("Finished file: {}".format(originalfile))
 
-    save_data(X, y)
+        print("Saving data...")
+        save_data(originalfile, X, y)
+        print("Finished.")
 
 
 
@@ -95,12 +96,13 @@ def load_data():
         y = np.load(f)
         return X, y
 
-def save_data(X, y):
+def save_data(originalfile, X, y):
     import os
-    if os.path.exists("../data/test.npy"):
-        os.remove("../data/test.npy")
+    filename = "../data/{}.npy".format(originalfile)
+    if os.path.exists(filename):
+        os.remove(filename)
 
-    with open('../data/test.npy', 'wb') as f:
+    with open(filename, 'wb') as f:
         np.save(f, X)
         np.save(f, y)
 
