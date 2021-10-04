@@ -1,5 +1,6 @@
 import os
 from tqdm import tqdm
+from random import shuffle
 import csv
 import numpy as np
 from src.ast_builder import ASTBuilder
@@ -50,10 +51,10 @@ def main():
     originalfiles = [f for f in os.listdir(originalpath) if os.path.isfile(os.path.join(originalpath, f)) and ".csv" not in f]
 
     creator = ASTBuilder()
-    X = []
-    y = []
 
     for i in tqdm(range(len(originalfiles))):
+        X = []
+        y = []
         originalfile = originalfiles[i]
         content = get_registry_file(originalfile)
         file_number_first = content[0].split(" ")[3][1:]
@@ -79,11 +80,21 @@ def main():
         if len(non_clones) == 1:
             non_clones = []
 
+        # perform under-sampling
+        shuffle(non_clones)
+        len_X_clones = len(X)
+
         for non_clone in non_clones:
             non_clone_nr = non_clone.strip()
             if file_number_first == non_clone_nr:
                 continue
+            if len(X) == len_X_clones * 2:
+                break
             add_datapoint(non_clone_nr, creator, tokens_first, 0, X, y)
+
+        if len(X) == 0:
+            print("No valid clonedata found.")
+            continue
 
         print("Saving data...")
         save_data(originalfile, X, y)
