@@ -4,6 +4,7 @@ import csv
 import numpy as np
 from src.ast_builder import ASTBuilder
 from src.vector_generation import create_similarity_vector, create_occurrence_list
+from src.dataloading import save_data
 
 data_path = os.path.join(os.environ.get("DATA_PATH"))
 originalpath = os.path.join(data_path, "original")
@@ -88,23 +89,6 @@ def main():
         save_data(originalfile, X, y)
         print("Finished.")
 
-
-
-def load_data():
-    with open('../data/test.npy', 'rb') as f:
-        X = np.load(f)
-        y = np.load(f)
-        return X, y
-
-def save_data(originalfile, X, y):
-    import os
-    filename = "../data/{}.npy".format(originalfile)
-    if os.path.exists(filename):
-        os.remove(filename)
-
-    with open(filename, 'wb') as f:
-        np.save(f, X)
-        np.save(f, y)
 
 if __name__ == "__main__":
     main()
