@@ -14,7 +14,7 @@ def main():
         X.append(X_)
         y.append(y_)
 
-    net = train_net(X, y)
+    net = train_net(np.concatenate(X, axis=0), np.concatenate(y, axis=0))
     print(net)
 
 
