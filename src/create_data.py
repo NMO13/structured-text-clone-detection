@@ -99,6 +99,7 @@ def main():
         print("Saving data...")
         save_data(originalfile, X, y)
         print("Finished.")
+        print("{} files could not be parsed".format(non_parsable_counter))
 
 
 if __name__ == "__main__":
