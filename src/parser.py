@@ -37,11 +37,22 @@ designator = ident + ZeroOrMore(
         + Literal("]").setParseAction(aw("MARKER"))
     )
 )
+integer = Word(nums + "_").setParseAction(aw("LITERAL"))
 
 
 assign_op = Literal(":=").setParseAction(aw("OPERATOR"))
 mulop = (Literal("*") | Literal("/") | Literal("MOD")).setParseAction(aw("OPERATOR"))
 addop = (Literal("+") | Literal("-")).setParseAction(aw("OPERATOR"))
+
+subrange = Combine(Word(nums) + Literal("..") + Word(nums))
+
+non_generic_type_name = dtype
+array_specification = Literal("ARRAY").setParseAction(aw("KEYWORD")) + Literal("[").setParseAction(aw("MARKER")) + subrange.setParseAction(aw("MARKER")) + ZeroOrMore(Literal(",").setParseAction(aw("MARKER")) + subrange) + Literal("]").setParseAction(aw("MARKER")) + Literal("OF").setParseAction(aw("KEYWORD")) + non_generic_type_name
+
+var_init_decl = designator + Suppress(Literal(":")) + (array_specification | (dtype + Optional(assign_op + expression)))
+
+input_declaration = var_init_decl
+
 var_decl = (
     oneOf("VAR_INPUT VAR_OUTPUT VAR_IN_OUT VAR VAR_EXTERNAL").setParseAction(aw("KEYWORD"))
     + Optional(
@@ -50,10 +61,7 @@ var_decl = (
         | Literal("NON_RETAIN").setParseAction(aw("KEYWORD"))
     )
     + ZeroOrMore(
-        designator
-        + Suppress(Literal(":"))
-        + dtype
-        + Optional(assign_op + expression)
+        input_declaration
         + semicolon
     )
     + Keyword("END_VAR").setParseAction(aw("KEYWORD"))
@@ -178,7 +186,6 @@ count_condition = (
 )
 
 enumerated_value = Combine(Optional(ident + "#") + ident)
-subrange = Combine(Word(nums) + Literal("..") + Word(nums))
 case_list_element = subrange | Word(nums) | enumerated_value
 case_list = case_list_element + ZeroOrMore("," + case_list_element)
 case_element = case_list.setParseAction(aw("MARKER")) + Suppress(Literal(":")) + block
