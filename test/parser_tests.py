@@ -493,6 +493,7 @@ VAR_INPUT
     X : ARRAY[0..3] OF BYTE; (* scan line inputs *)
     L : ARRAY[0..3] OF BYTE; (* scan line status *)
     _temp AT temp : ARRAY[0..7] OF BOOL;
+    y2, y3, y4 : BOOL;
 END_VAR
 avg := 0;
 i := 0;

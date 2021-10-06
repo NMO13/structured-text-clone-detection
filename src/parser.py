@@ -49,7 +49,7 @@ subrange = Combine(Word(nums) + Literal("..") + Word(nums))
 non_generic_type_name = dtype
 array_specification = Literal("ARRAY").setParseAction(aw("KEYWORD")) + Literal("[").setParseAction(aw("MARKER")) + subrange.setParseAction(aw("MARKER")) + ZeroOrMore(Literal(",").setParseAction(aw("MARKER")) + subrange) + Literal("]").setParseAction(aw("MARKER")) + Literal("OF").setParseAction(aw("KEYWORD")) + non_generic_type_name
 
-var_init_decl = designator + Suppress(Literal(":")) + (array_specification | (dtype + Optional(assign_op + expression)))
+var_init_decl = designator + ZeroOrMore(Literal(",").setParseAction(aw("MARKER")) + designator) + Optional(Keyword("AT").setParseAction(aw("KEYWORD")) + designator) + Suppress(Literal(":")) + (array_specification | (dtype + Optional(assign_op + expression)))
 
 input_declaration = var_init_decl
 
