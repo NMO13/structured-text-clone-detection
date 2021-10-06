@@ -475,3 +475,13 @@ END_PROGRAM"""
 
 test_process(text)
 
+##############
+
+text = """
+PROGRAM main
+SWIL := LW.Y; // [mm]
+NOL := (SWP_1.FulRolLen - SWIL) * 0.5;
+END_PROGRAM"""
+
+test_process(text)
+

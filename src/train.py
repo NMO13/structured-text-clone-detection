@@ -1,9 +1,9 @@
 import os
 import numpy as np
-from dataloading import load_data
+from src.dataloading import load_data
 from src.nn.network_functions import train_net, predict
 
-def main():
+def train():
     st_path = "../data"
     onlyfiles = [os.path.join(st_path, f) for f in os.listdir(st_path) if os.path.isfile(os.path.join(st_path, f))]
 
@@ -15,7 +15,8 @@ def main():
         y.append(y_)
 
     net = train_net(np.concatenate(X, axis=0), np.concatenate(y, axis=0))
+    return net
 
 
 if __name__ == "__main__":
-    main()
+    train()

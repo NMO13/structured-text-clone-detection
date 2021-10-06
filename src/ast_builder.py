@@ -6,7 +6,8 @@ class ASTBuilder:
 
     def parse(self, text):
         text = self.remove_description(text)
-        text = self.remove_comments(text)
+        text = self.remove_multiline_comments(text)
+        text = self.remove_singleline_comments(text)
         result = self.parser.parseString(text)
         result = self.resolve_method_marker(result)
         return result
@@ -29,11 +30,14 @@ class ASTBuilder:
         text = subString1 + subString2
         return text
 
-    def remove_comments(self, text):
+    def remove_singleline_comments(self, text):
         import re
+        res = re.sub(r"//.*", "", text)
+        return res
 
+    def remove_multiline_comments(self, text):
+        import re
         res = re.sub(r"\(\*([\s\S]*?)\*\)", " ", text)
-
         return res
 
     def resolve_method_marker(self, parsed_text):

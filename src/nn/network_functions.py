@@ -92,4 +92,5 @@ def test(test_loader, net, criterion):
         100. * correct / len(test_loader.dataset)))
 
 def predict(net, sim_vector):
-    return torch.sigmoid(net(torch.FloatTensor(sim_vector).to(device)))
+    raw_logits = net(torch.FloatTensor(sim_vector).to(device))
+    return raw_logits, torch.sigmoid(raw_logits)
