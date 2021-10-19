@@ -500,3 +500,24 @@ i := 0;
 END_PROGRAM"""
 
 test_process(text)
+
+##############
+
+text = """
+PROGRAM main
+STRING_TO_URL.STR:="http://ipinfodb.com/ip_query.php?timezone=true&IP=";
+END_PROGRAM"""
+
+test_process(text)
+
+##############
+
+text = """
+FUNCTION_BLOCK FILE_PATH_SPLIT
+FOR b := 1 TO c DO
+
+END_FOR;
+END_FUNCTION_BLOCK
+"""
+
+test_process(text)

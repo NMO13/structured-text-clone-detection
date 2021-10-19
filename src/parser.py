@@ -14,6 +14,7 @@ from pyparsing import (
     Combine,
     alphanums,
     QuotedString,
+    dblSlashComment
 )
 
 
@@ -257,4 +258,4 @@ parser = (
     + ZeroOrMore(var_decl)
     + ZeroOrMore(statement)
     + oneOf("END_PROGRAM END_FUNCTION_BLOCK END_FUNCTION").setParseAction(aw("KEYWORD"))
-)
+).ignore(dblSlashComment)
