@@ -29,7 +29,10 @@ def upload():
         # file is valid
         from src.nn.network_functions import predict
         from . import net
-        sim_vectors, filenames = create_similarity_vectors(basefile, compare_files)
+        try:
+            sim_vectors, filenames = create_similarity_vectors(basefile, compare_files)
+        except Exception as e:
+            return render_template("base.html", error=True, message=str(e))
         logit, probabilities = predict(net, sim_vectors)
         rounded_probs = map(lambda x: "true" if x[0] == 1 else "false", torch.round(probabilities).cpu().data.numpy())
         res = zip(rounded_probs, probabilities.cpu().data.numpy(), filenames)

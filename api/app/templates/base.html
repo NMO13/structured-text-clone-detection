@@ -20,7 +20,13 @@
 
                 <input class="btn btn-primary mt-3" type="submit" name="submit" value="Upload Files">
                 {% if error %}
-                <div class="alert alert-danger mt-4" role="alert">Upload failed.</div>
+                <div class="alert alert-danger mt-4" role="alert">
+                    {% if message %}
+                       {{message}}
+                    {% else %}
+                       Upload failed.
+                    {% endif %}
+                </div>
                 {% endif %}
                 {% if upload_success %}
                 <div class="alert alert-success mt-4" role="alert">Upload successful.</div>
