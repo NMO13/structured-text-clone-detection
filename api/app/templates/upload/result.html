@@ -1,14 +1,27 @@
 {% extends 'base.html' %}
-
-
 {% block content %}
-  <form method="post">
-    <label>Base file:</label>
-    <div>{{basefile}}</div>
 
-    <h1>Results:</h1>
-    {% for value in result %}
-    <div>{{value[0]}} - {{value[1]}} - {{value[2]}}</div>
-    {% endfor %}
-  </form>
+<span>Base file: <b>{{basefile}}</b></span>
+
+<div class="mt-5">
+    <h2>Results:</h2>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">Is Clone?</th>
+            <th scope="col">Probability</th>
+            <th scope="col">Filename</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for value in result %}
+        <tr>
+            <th scope="row">{{value[0]}}</th>
+            <td>{{value[1]}}</td>
+            <td>{{value[2]}}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}

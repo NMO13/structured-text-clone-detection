@@ -31,8 +31,8 @@ def upload():
         from . import net
         sim_vectors, filenames = create_similarity_vectors(basefile, compare_files)
         logit, probabilities = predict(net, sim_vectors)
-        rounded_probs = torch.round(probabilities)
-        res = zip(rounded_probs.cpu().data.numpy(), probabilities.cpu().data.numpy(), filenames)
+        rounded_probs = map(lambda x: "true" if x[0] == 1 else "false", torch.round(probabilities).cpu().data.numpy())
+        res = zip(rounded_probs, probabilities.cpu().data.numpy(), filenames)
 
         return render_template("upload/result.html", error=False, upload_success=True, basefile=basefile.filename, result=res)
 
