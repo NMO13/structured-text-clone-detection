@@ -24,7 +24,7 @@ def upload():
                 compare_files = request.files.getlist("file[]")
                 [check_file(x) for x in compare_files]
         except:
-            return render_template("upload/base.html", error=True)
+            return render_template("base.html", error=True)
 
         # file is valid
         from src.nn.network_functions import predict
