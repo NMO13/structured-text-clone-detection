@@ -15,7 +15,7 @@ def allowed_file(filename):
 @bp.route('/', methods=("POST", "GET"))
 def upload():
     if request.method == "GET":
-        return render_template("upload/base.html", error=False)
+        return render_template("base.html", error=False)
     if request.method == 'POST':
         try:
             if request.values["submit"] == "Upload Files":
@@ -30,9 +30,9 @@ def upload():
         from src.nn.network_functions import predict
         from . import net
         sim_vectors, filenames = create_similarity_vectors(basefile, compare_files)
-        logit, probability = predict(net, sim_vectors)
-        rounded_probs = torch.round(probability).cpu().data.numpy()
-        res = zip(rounded_probs, filenames)
+        logit, probabilities = predict(net, sim_vectors)
+        rounded_probs = torch.round(probabilities)
+        res = zip(rounded_probs.cpu().data.numpy(), probabilities.cpu().data.numpy(), filenames)
 
         return render_template("upload/result.html", error=False, upload_success=True, basefile=basefile.filename, result=res)
 
