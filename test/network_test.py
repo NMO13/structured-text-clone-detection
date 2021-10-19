@@ -39,7 +39,7 @@ def cosine_similarity(tokensA, tokensB):
 
 
 creator = ASTBuilder()
-manualclones_path = "/home/martin/Martin/Uni/Artificial Intelligence/Practical_Work/data/synthetic data/manualclones/" # add path here
+manualclones_path = "" # add path here
 with open('{}Original.ST'.format(manualclones_path)) as f:
     tokens_original = creator.parse(f.read())
 
