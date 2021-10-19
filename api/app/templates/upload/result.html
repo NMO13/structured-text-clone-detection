@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+  <form method="post">
+    <label>Base file:</label>
+    <div>{{basefile}}</div>
+
+    <h1>Results:</h1>
+    {% for value in result %}
+    <div>{{value[0]}} - {{value[1]}}</div>
+    {% endfor %}
+  </form>
+{% endblock %}

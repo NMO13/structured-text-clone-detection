@@ -11,8 +11,6 @@
     {% if upload_success %}
      <div>Upload successful.</div>
   {% endif %}
-    <h1>Results:</h1>
-    {% for value in result %}
-    <div>{{value}}</div>
-    {% endfor %}
+
 </form>
+{% block content %}{% endblock %}
