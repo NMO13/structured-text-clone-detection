@@ -14,6 +14,7 @@ def allowed_file(filename):
 
 @bp.route('/', methods=("POST", "GET"))
 def upload():
+    print("Using {} device".format("cuda" if torch.cuda.is_available() else "cpu"))
     if request.method == "GET":
         return render_template("base.html", error=False)
     if request.method == 'POST':

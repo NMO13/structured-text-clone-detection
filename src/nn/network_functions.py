@@ -8,7 +8,6 @@ BATCH_SIZE = 64
 LEARNING_RATE = 0.001
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
-print("Using {} device".format(device))
 
 
 class TrainData(Dataset):
