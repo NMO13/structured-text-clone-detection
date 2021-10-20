@@ -1,5 +1,6 @@
 # structured-text-clone-detection
-This tool finds code clones in structured text files.
+This tool finds code clones in structured text files. It is an implementation of the paper **CCLearner: A Deep Learning-Based Clone
+Detection Approach, Liuqing Li et. al**.
 You can either use the online version available [here](https://internal.xemedo.com/code-compare/) or you can install it by yourself. Installation instructions are provided below.
 
 ## Installation
