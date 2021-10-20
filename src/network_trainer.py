@@ -4,8 +4,10 @@ from src.dataloading import load_data
 from src.nn.network_functions import train_net, predict
 
 def train():
+    import pathlib
+    path = pathlib.Path(__file__).parent.resolve()
     st_path = "../data"
-    onlyfiles = [os.path.join(st_path, f) for f in os.listdir(st_path) if os.path.isfile(os.path.join(st_path, f))]
+    onlyfiles = [os.path.join(path, st_path, f) for f in os.listdir(os.path.join(path, st_path)) if os.path.isfile(os.path.join(path, st_path, f))]
 
     X = []
     y = []
