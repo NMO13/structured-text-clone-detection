@@ -4,4 +4,4 @@ services:
     build: .
     ports:
       - "5000:5000"
-    command: gunicorn --bind 0.0.0.0:5000 --log-level info --access-logfile - api:create_app()
+    command: gunicorn --bind 0.0.0.0:5000 --log-level info --timeout 300 -access-logfile - api:create_app()
