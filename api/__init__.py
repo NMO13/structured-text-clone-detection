@@ -2,9 +2,15 @@ from flask import Flask
 import os
 
 import sys
+import logging
 sys.path.append('../src')
 from src.network_trainer import train
 net = train()
+
+def create_log(app):
+    gunicorn_logger = logging.getLogger('gunicorn.error')
+    app.logger.handlers = gunicorn_logger.handlers
+    app.logger.setLevel(gunicorn_logger.level)
 
 def create_app():
     from api.instance.config import Config
@@ -23,6 +29,7 @@ def create_app():
     from . import upload
     app.register_blueprint(upload.bp)
 
+    create_log(app)
 
     return app
 

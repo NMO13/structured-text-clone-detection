@@ -5,3 +5,10 @@ services:
     ports:
       - "5000:5000"
     command: gunicorn --bind 0.0.0.0:5000 --timeout 300 --log-level info api:create_app()
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
