@@ -1,4 +1,5 @@
 import torch
+import time
 from src.ast_builder import ASTBuilder
 
 ALLOWED_EXTENSIONS = {"st"}
@@ -31,31 +32,43 @@ def upload():
         from src.nn.network_functions import predict
         from . import net
         try:
-            sim_vectors, filenames = create_similarity_vectors(basefile, compare_files)
+            basetext = basefile.read().decode("utf-8")
+            sim_vectors, filenames, exec_times, filesizes = create_similarity_vectors(basetext, compare_files)
         except Exception as e:
             return render_template("base.html", error=True, message=str(e))
+        start = time.time()
         logit, probabilities = predict(net, sim_vectors)
+        pred_time = time.time() - start
         rounded_probs = map(lambda x: "true" if x[0] == 1 else "false", torch.round(probabilities).cpu().data.numpy())
-        res = zip(rounded_probs, probabilities.cpu().data.numpy(), filenames)
+        res = zip(rounded_probs, probabilities.cpu().data.numpy(), filenames, exec_times, filesizes)
+        return render_template("upload/result.html", error=False, upload_success=True, basefile=basefile.filename, pred_time=pred_time, overall_time=sum(exec_times), basefile_size=utf8len(basetext), result=res)
 
-        return render_template("upload/result.html", error=False, upload_success=True, basefile=basefile.filename, result=res)
+
+def utf8len(s):
+    return len(s.encode('utf-8'))
 
 def check_file(file):
     if not (file and allowed_file(file.filename)):
         raise Exception("Illegal file.")
 
-def create_similarity_vectors(basefile, compare_files):
+def create_similarity_vectors(basetext, compare_files):
     from src.vector_generation import create_similarity_vector, create_occurrence_list
     creator = ASTBuilder()
-    tokens_base = creator.parse(basefile.read().decode("utf-8"))
+    tokens_base = creator.parse(basetext)
     sim_vectors = []
     filenames = []
+    exec_times = []
+    filesizes = []
 
     for compare_file in compare_files:
         print("comparison file: " + compare_file.filename)
+        comparetext = compare_file.read().decode("utf-8")
+        start = time.time()
         vector = create_similarity_vector(create_occurrence_list(tokens_base),
-                                 create_occurrence_list(creator.parse(compare_file.read().decode("utf-8"))))
+                                 create_occurrence_list(creator.parse(comparetext)))
+        exec_times.append(time.time() - start)
         sim_vectors.append(vector)
         filenames.append(compare_file.filename)
+        filesizes.append(utf8len(comparetext))
 
-    return sim_vectors, filenames
+    return sim_vectors, filenames, exec_times, filesizes
