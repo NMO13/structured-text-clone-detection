@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
 {% block content %}
 
+<script>
+    $(document).ready( function () {
+    $('#myTable').DataTable();
+} );
+</script>
 <span>Base file: <b>{{basefile}}</b></span>
 <br/>
 <span>Prediction time (s): <b>{{pred_time}}</b></span>
@@ -11,7 +16,7 @@
 
 <div class="mt-5">
     <h2>Results:</h2>
-    <table class="table table-striped">
+    <table id="myTable" class="table table-striped">
         <thead>
         <tr>
             <th scope="col">Is Clone?</th>

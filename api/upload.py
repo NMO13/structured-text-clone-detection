@@ -62,13 +62,13 @@ def create_similarity_vectors(basetext, compare_files):
 
     for compare_file in compare_files:
         print("comparison file: " + compare_file.filename)
-        comparetext = compare_file.read().decode("utf-8")
         start = time.time()
+        comparetext = compare_file.read().decode("utf-8")
         vector = create_similarity_vector(create_occurrence_list(tokens_base),
                                  create_occurrence_list(creator.parse(comparetext)))
-        exec_times.append(time.time() - start)
         sim_vectors.append(vector)
         filenames.append(compare_file.filename)
         filesizes.append(utf8len(comparetext))
+        exec_times.append(time.time() - start)
 
     return sim_vectors, filenames, exec_times, filesizes
