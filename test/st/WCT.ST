@@ -1,4 +1,18 @@
-text = """
+(*@PROPERTIES_EX@
+TYPE: POU
+LOCALE: 0
+IEC_LANGUAGE: ST
+PLC_TYPE: independent
+PROC_TYPE: independent
+GROUP: HLK
+*)
+(*@KEY@:DESCRIPTION*)
+version 1.2	13. mar. 2009
+programmer 	hugo
+tested by	tobias
+
+this function calculates the wind chill temperature
+(*@KEY@:END_DESCRIPTION*)
 FUNCTION WCT:REAL
 
 (*Group:Default*)
@@ -34,8 +48,3 @@ hm	13. mar. 2009	rev 1.2
 *)
 (*@KEY@: END_WORKSHEET *)
 END_FUNCTION
-"""
-
-from src.ast_builder import ASTBuilder
-creator = ASTBuilder()
-creator.parse(text)

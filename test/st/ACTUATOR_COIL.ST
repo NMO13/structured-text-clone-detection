@@ -1,4 +1,20 @@
-text = """
+(*@PROPERTIES_EX@
+TYPE: POU
+LOCALE: 0
+IEC_LANGUAGE: ST
+PLC_TYPE: independent
+PROC_TYPE: independent
+GROUP: ACTUATORS
+*)
+(*@KEY@:DESCRIPTION*)
+version 1.0	1. jun. 2008
+programmer 	hugo
+tested by	tobias
+
+this is an intelligent actuator interface for any coil actuator.
+the coil actuator can only switch on/off.
+coil actuators like vents can get stuck if they are not u8sed for a long time and need to be autoactivated on ce in a while.
+(*@KEY@:END_DESCRIPTION*)
 FUNCTION_BLOCK ACTUATOR_COIL
 
 (*Group:Default*)
@@ -67,8 +83,3 @@ hm		1. jun. 2008 	rev 1.0
 *)
 (*@KEY@: END_WORKSHEET *)
 END_FUNCTION_BLOCK
-"""
-
-from src.ast_builder import ASTBuilder
-creator = ASTBuilder()
-creator.parse(text)

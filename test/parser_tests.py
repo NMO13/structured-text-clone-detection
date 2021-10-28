@@ -1,37 +1,35 @@
 from src.ast_builder import ASTBuilder
-ast_builder = ASTBuilder()
-text = """
-PROGRAM main
-VAR_INPUT
-i : INT;
-END_VAR
-END_PROGRAM"""
+from src.vector_generation import create_similarity_vector, create_occurrence_list
 
-ast_builder.parse(text)
-################
+def test_process(text):
+    ast_builder = ASTBuilder()
+    tokens = ast_builder.parse(text)
+    print("Similarity Vector: {}".format(create_similarity_vector(create_occurrence_list(tokens), create_occurrence_list(tokens))))
 
 text = """
 PROGRAM main
 VAR_INPUT
 i : INT;
+MIN_TIME_MS :	TIME := t#1s; 
 END_VAR
+foo(x.y.z);
+foo(x.y.z());
+i.j.k:=x.y.z[v+1];
+Swap_Byte2 := DWORD#16#FF00FF00;
 END_PROGRAM"""
 
-ast_builder.parse(text)
-
-###############
-
+test_process(text)
 
 text = """
 PROGRAM main
 VAR_INPUT
 i : INT;
 END_VAR
-i := 0;
-j := 3;
+i.j.k:=x.y[4];
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
+
 
 ##############
 
@@ -44,7 +42,7 @@ x.y := 0;
 u.v := 3;
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -52,26 +50,33 @@ text = """
 PROGRAM main
 VAR_INPUT
 i : INT;
+S1 :	BYTE := 2#1111_1111;
 END_VAR
 i := 4;
 REPEAT
 i := i + 1;
-UNTIL i < j+4;
+UNTIL i < j+4
 END_REPEAT;
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
 text = """
 PROGRAM main
-FOR(i := 0 TO 10) DO
-avg := avg + 4;
+FOR i := 0 TO 10 DO
+avg := avg[3].x + 4;
 END_FOR;
+
+FOR i := func(3) TO 10 DO
+avg := avg[3].x + 4;
+EXIT;
+END_FOR;
+
 END_PROGRAM
 """
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -89,7 +94,7 @@ END_WHILE;
 avg := avg / 5;
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -101,7 +106,7 @@ END_VAR
 i := 3 + f[5];
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -115,7 +120,25 @@ i := 3;
 END_IF;
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
+
+##############
+
+text = """
+PROGRAM main
+VAR_INPUT
+i : INT;
+a : INT;
+b : BOOL;
+END_VAR
+IF NOT init THEN
+	init := TRUE;
+	last_check := tx - t#100ms;
+END_IF;
+x := _BYTE_TO_INT(scene AND BYTE#2#0000_1111);
+END_PROGRAM"""
+
+test_process(text)
 
 ##############
 
@@ -131,7 +154,7 @@ i := 3;
 END_IF;
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -145,7 +168,7 @@ i := 3;
 END_IF;
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -161,7 +184,7 @@ ELSE
 END_IF;
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -181,7 +204,7 @@ ELSE
 END_IF;
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -224,7 +247,21 @@ CASE state OF
 END_CASE;
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
+
+##############
+text = """
+PROGRAM main
+VAR_INPUT
+i : INT;
+END_VAR
+
+CASE state OF
+1..7:	x := 3;
+END_CASE;
+END_PROGRAM"""
+
+test_process(text)
 
 ##############
 text = """
@@ -246,7 +283,7 @@ CASE state OF
 END_CASE;
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -258,7 +295,7 @@ END_VAR
 x := foo();
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -271,7 +308,7 @@ x := foo(3);
 x := foo(3, i);
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -284,7 +321,7 @@ ramp(OUT := 3);
 ramp(OUT := 4, RUN := 1);
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -301,7 +338,7 @@ END_IF;
 
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -318,7 +355,7 @@ END_IF;
 
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -335,7 +372,7 @@ END_IF;
 
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -349,7 +386,7 @@ IF DINT_TO_TIME(ABS(TIME_TO_DINT(ramp.TR) - TIME_TO_DINT(ramp.TF)) * DINT#10) > 
 
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -363,7 +400,7 @@ END_VAR
 	END_IF;
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -378,7 +415,7 @@ IF (status > BYTE#0 AND status < BYTE#100) THEN
 END_IF;
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -392,7 +429,7 @@ timer1(in := flame AND in AND motor AND coil1 AND NOT coil2, SECONDS := runtime1
 timer2(in := flame AND in AND motor AND coil1 AND coil2, SECONDS := runtime2, CYCLES := cycles2);
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -405,7 +442,7 @@ END_VAR
 timer2(in := flame AND in AND motor AND coil1 AND coil2, SECONDS := runtime2, CYCLES := cycles2);
 END_PROGRAM"""
 
-ast_builder.parse(text)
+test_process(text)
 
 ##############
 
@@ -414,5 +451,73 @@ FUNCTION WATER_DENSITY:REAL
 WATER_DENSITY := (999.83952 + 16.952577*T + -7.9905127E-3*T2 + -4.6241757E-5*T2*T + 1.0584601E-7*T4 + -2.8103006E-10*T4*T) / (1.0 + 0.0168872*T);
 END_FUNCTION"""
 
-ast_builder.parse(text)
+test_process(text)
 
+##############
+
+text = """
+PROGRAM main
+IF (tx - last) >= T2 THEN
+	(* timeout for long pulse if second click did not occur or in stays high *)
+	Q := FALSE;
+END_IF;
+END_PROGRAM"""
+
+test_process(text)
+
+##############
+
+text = """
+PROGRAM main
+cmp:="ab";
+cmp:='ab';
+END_PROGRAM"""
+
+test_process(text)
+
+##############
+
+text = """
+PROGRAM main
+SWIL := LW.Y; // [mm]
+NOL := (SWP_1.FulRolLen - SWIL) * 0.5;
+END_PROGRAM"""
+
+test_process(text)
+
+##############
+
+text = """
+PROGRAM main
+VAR_INPUT
+    X : ARRAY[0..3] OF BYTE; (* scan line inputs *)
+    L : ARRAY[0..3] OF BYTE; (* scan line status *)
+    _temp AT temp : ARRAY[0..7] OF BOOL;
+    y2, y3, y4 : BOOL;
+END_VAR
+avg := 0;
+i := 0;
+END_PROGRAM"""
+
+test_process(text)
+
+##############
+
+text = """
+PROGRAM main
+STRING_TO_URL.STR:="http://ipinfodb.com/ip_query.php?timezone=true&IP=";
+END_PROGRAM"""
+
+test_process(text)
+
+##############
+
+text = """
+FUNCTION_BLOCK FILE_PATH_SPLIT
+FOR b := 1 TO c DO
+
+END_FOR;
+END_FUNCTION_BLOCK
+"""
+
+test_process(text)
