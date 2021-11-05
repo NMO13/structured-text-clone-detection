@@ -1,6 +1,7 @@
 import torch
 import time
 from src.ast_builder import ASTBuilder
+from src.nn.projections.pca import calculate_pca
 
 ALLOWED_EXTENSIONS = {"st"}
 
@@ -31,6 +32,7 @@ def upload():
         # file is valid
         from src.nn.network_functions import predict
         from . import net
+        import json
         try:
             basetext = basefile.read().decode("utf-8")
             sim_vectors, filenames, exec_times, filesizes = create_similarity_vectors(basetext, compare_files)
@@ -41,7 +43,10 @@ def upload():
         pred_time = time.time() - start
         rounded_probs = map(lambda x: "true" if x[0] == 1 else "false", torch.round(probabilities).cpu().data.numpy())
         res = zip(rounded_probs, probabilities.cpu().data.numpy(), filenames, exec_times, filesizes)
-        return render_template("upload/result.html", error=False, upload_success=True, basefile=basefile.filename, pred_time=pred_time, overall_time=sum(exec_times), basefile_size=utf8len(basetext), result=res)
+        df, expl_ratio = calculate_pca()
+
+
+        return render_template("upload/result.html", error=False, upload_success=True, basefile=basefile.filename, pred_time=pred_time, overall_time=sum(exec_times), basefile_size=utf8len(basetext), result=res, expl_ratio_data=expl_ratio.tolist())
 
 
 def utf8len(s):
