@@ -40,17 +40,43 @@ def cosine_similarity(tokensA, tokensB):
 
 creator = ASTBuilder()
 manualclones_path = "" # add path here
-with open('/home/martin/Martin/Uni/Artificial Intelligence/Practical_Work/data/synthetic data/complete OSCAT/original/ACOSH.ST'.format(manualclones_path)) as f:
+with open('{}Original.ST'.format(manualclones_path)) as f:
     tokens_original = creator.parse(f.read())
 
-with open('/home/martin/Martin/Uni/Artificial Intelligence/Practical_Work/data/synthetic data/complete OSCAT/original/GDF.ST'.format(manualclones_path)) as f:
+with open('{}Clone1.ST'.format(manualclones_path)) as f:
     tokens_clone1 = creator.parse(f.read())
 
+with open('{}Clone2.ST'.format(manualclones_path)) as f:
+    tokens_clone2 = creator.parse(f.read())
 
-sim_vector1 = create_similarity_vector(create_occurrence_list(tokens_clone1), create_occurrence_list(tokens_original))
+with open('{}Clone3.ST'.format(manualclones_path)) as f:
+    tokens_clone3 = creator.parse(f.read())
+
+with open('{}NonClone1.ST'.format(manualclones_path)) as f:
+    tokens_nonclone1 = creator.parse(f.read())
+
+with open('{}NonClone2.ST'.format(manualclones_path)) as f:
+    tokens_nonclone2 = creator.parse(f.read())
+
+with open('{}NonClone3.ST'.format(manualclones_path)) as f:
+    tokens_nonclone3 = creator.parse(f.read())
+
+sim_vector1 = create_similarity_vector(create_occurrence_list(tokens_original), create_occurrence_list(tokens_original))
+sim_vector2 = create_similarity_vector(create_occurrence_list(tokens_original), create_occurrence_list(tokens_clone1))
+sim_vector3 = create_similarity_vector(create_occurrence_list(tokens_original), create_occurrence_list(tokens_clone2))
+sim_vector4 = create_similarity_vector(create_occurrence_list(tokens_original), create_occurrence_list(tokens_clone3))
+sim_vector5 = create_similarity_vector(create_occurrence_list(tokens_clone1), create_occurrence_list(tokens_clone2))
+sim_vector6 = create_similarity_vector(create_occurrence_list(tokens_clone2), create_occurrence_list(tokens_clone3))
+sim_vector7 = create_similarity_vector(create_occurrence_list(tokens_clone1), create_occurrence_list(tokens_clone3))
+
+sim_vector8 = create_similarity_vector(create_occurrence_list(tokens_original), create_occurrence_list(tokens_nonclone1))
+sim_vector9 = create_similarity_vector(create_occurrence_list(tokens_original), create_occurrence_list(tokens_nonclone2))
+sim_vector10 = create_similarity_vector(create_occurrence_list(tokens_original), create_occurrence_list(tokens_nonclone3))
+sim_vector11 = create_similarity_vector(create_occurrence_list(tokens_nonclone1), create_occurrence_list(tokens_nonclone3))
+sim_vector12 = create_similarity_vector(create_occurrence_list(tokens_nonclone2), create_occurrence_list(tokens_nonclone3))
 
 net = train()
-logit, probability = predict(net, [sim_vector1])
+logit, probability = predict(net, [sim_vector1, sim_vector2, sim_vector3, sim_vector4, sim_vector5, sim_vector6, sim_vector7, sim_vector8, sim_vector9, sim_vector10, sim_vector11, sim_vector12])
 print(torch.round(probability))
 
 ######## cosine similarity
