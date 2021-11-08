@@ -32,7 +32,6 @@ def upload():
         # file is valid
         from src.nn.network_functions import predict
         from . import net
-        import json
         try:
             basetext = basefile.read().decode("utf-8")
             sim_vectors, filenames, exec_times, filesizes = create_similarity_vectors(basetext, compare_files)
