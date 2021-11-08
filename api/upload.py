@@ -42,11 +42,17 @@ def upload():
         logit, probabilities = predict(net, sim_vectors)
         pred_time = time.time() - start
         rounded_probs = map(lambda x: "true" if x[0] == 1 else "false", torch.round(probabilities).cpu().data.numpy())
-        res = zip(rounded_probs, probabilities.cpu().data.numpy(), filenames, exec_times, filesizes)
-        df, expl_ratio = calculate_pca()
+        nn_result = zip(rounded_probs, probabilities.cpu().data.numpy(), filenames, exec_times, filesizes)
 
+        # pca
+        expl_ratio = []
+        pca_result = [[],[]]
+        if len(sim_vectors) > 1:
+            df, expl_ratio = calculate_pca(sim_vectors)
+            expl_ratio = expl_ratio.tolist()
+            pca_result = [df["pca-one"].to_list(), df["pca-two"].to_list()]
 
-        return render_template("upload/result.html", error=False, upload_success=True, basefile=basefile.filename, pred_time=pred_time, overall_time=sum(exec_times), basefile_size=utf8len(basetext), result=res, expl_ratio_data=expl_ratio.tolist())
+        return render_template("upload/result.html", error=False, upload_success=True, basefile=basefile.filename, pred_time=pred_time, overall_time=sum(exec_times), basefile_size=utf8len(basetext), result=nn_result, expl_ratio_data=expl_ratio, pca_result=pca_result)
 
 
 def utf8len(s):

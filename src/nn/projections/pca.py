@@ -49,22 +49,22 @@ import seaborn as sns
 # )
 # plt.show()
 
-def calculate_pca():
-    import pathlib
-    import os
-    from src.dataloading import load_data
-    path = pathlib.Path(__file__).parent.resolve()
-    st_path = "../../../data"
-    onlyfiles = [os.path.join(path, st_path, f) for f in os.listdir(os.path.join(path, st_path)) if os.path.isfile(os.path.join(path, st_path, f))]
+def calculate_pca(similarity_vectors):
+    # import pathlib
+    # import os
+    # from src.dataloading import load_data
+    # path = pathlib.Path(__file__).parent.resolve()
+    # st_path = "../../../data"
+    # onlyfiles = [os.path.join(path, st_path, f) for f in os.listdir(os.path.join(path, st_path)) if os.path.isfile(os.path.join(path, st_path, f))]
+    #
+    # X = []
+    # y = []
+    # for file in onlyfiles:
+    #     X_, y_ = load_data(file)
+    #     X.extend(X_)
+    #     y.extend(y_)
 
-    X = []
-    y = []
-    for file in onlyfiles:
-        X_, y_ = load_data(file)
-        X.extend(X_)
-        y.extend(y_)
-
-    df = pd.DataFrame(X)
+    df = pd.DataFrame(similarity_vectors)
     pca = PCA()
     pca_result = pca.fit_transform(df)
     df['pca-one'] = pca_result[:,0]
