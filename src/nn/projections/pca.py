@@ -73,7 +73,7 @@ def calculate_pca(similarity_vectors):
 
 
 if __name__ == "__main__":
-    df, expl_ratio = calculate_pca()
+    df, expl_ratio = calculate_pca(None)
     print('Explained variation per principal component: {}'.format(expl_ratio))
     plt.figure(figsize=(16, 10))
     sns.scatterplot(

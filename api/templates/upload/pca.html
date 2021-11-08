@@ -68,11 +68,11 @@ div.tooltip {
       })
       .attr("r", 1.5)
       .style("fill", "#69b3a2")
-      .on("mouseover", function (d) {
+      .on("mouseover", function (d, i) {
         div.transition()
                 .duration(200)
                 .style("opacity", .9);
-        div.html("text")
+        div.html({{filenames|safe}}[d.index])
                 .style("left", (d3.event.pageX) + "px")
                 .style("top", (d3.event.pageY - 28) + "px");
       })
@@ -117,7 +117,7 @@ var line = d3.line()
     .x(function(d, i) { return xScale(i); })
     .y(function(d) { return yScale(d.y); })
 
-var dataset = d3.range(n).map(function(d) { return {"y": {{expl_ratio_data}}[d] } })
+var data_ratio_dataset = d3.range(n).map(function(d) { return {"y": {{expl_ratio_data}}[d] } })
 
 var svg = d3.select("#scree_plot").append("svg")
     .attr("width", width + margin.left + margin.right)
@@ -140,7 +140,7 @@ svg.append("g")
 
 
 svg.append("path")
-    .datum(dataset)
+    .datum(data_ratio_dataset)
     .attr("class", "line")
     .attr("d", line);
 
@@ -162,7 +162,7 @@ svg.append("text")
   .text("Principal Component");
 
 svg.selectAll(".dot")
-    .data(dataset)
+    .data(data_ratio_dataset)
   .enter().append("circle")
     .attr("class", "dot")
     .attr("cx", function(d, i) { return xScale(i) })
@@ -199,7 +199,7 @@ var svg = d3.select("#my_dataviz")
           "translate(" + margin.left + "," + margin.top + ")");
 
 var n = {{pca_result}}[0].length
-var dataset = d3.range(n).map(function(d) { return {"x": {{pca_result}}[0][d], "y": {{pca_result}}[1][d]} })
+var dataset = d3.range(n).map(function(d, i) { return {"x": {{pca_result}}[0][d], "y": {{pca_result}}[1][d], "index": i }})
 
 // Add X axis
 var x = d3.scaleLinear()
