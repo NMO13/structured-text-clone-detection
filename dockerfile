@@ -22,5 +22,5 @@ ENV LANG=C.UTF-8
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 COPY . .
-RUN mkdir data
+RUN mkdir -p data
 #CMD ["flask", "run"]
