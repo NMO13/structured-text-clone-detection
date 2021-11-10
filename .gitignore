@@ -12,3 +12,4 @@ test/.ipynb_checkpoints/wct-checkpoint.py
 folderconfig.py
 .idea/
 *.sh
+/data/
