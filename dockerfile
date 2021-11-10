@@ -15,6 +15,7 @@ WORKDIR /code
 ENV FLASK_APP=api
 ENV FLASK_RUN_HOST=0.0.0.0
 ENV FLASK_ENV=production
+env DATA_PATH=/code/completeOSCAT
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 COPY . .
