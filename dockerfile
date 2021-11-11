@@ -15,7 +15,12 @@ WORKDIR /code
 ENV FLASK_APP=api
 ENV FLASK_RUN_HOST=0.0.0.0
 ENV FLASK_ENV=production
+ENV DATA_PATH=/code/completeOSCAT
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
+
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 COPY . .
+RUN mkdir -p data
 #CMD ["flask", "run"]

@@ -7,8 +7,9 @@ def load_data(filename):
         return X, y
 
 def save_data(originalfile, X, y):
+    # create directory "data" first
     import os
-    filename = "../data/{}.npy".format(originalfile)
+    filename = os.path.join(os.path.dirname(__file__), "../data/{}.npy".format(originalfile))
     if os.path.exists(filename):
         os.remove(filename)
 

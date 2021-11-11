@@ -13,3 +13,4 @@ folderconfig.py
 .ipynb_checkpoints/
 .idea/
 *.sh
+/data/
