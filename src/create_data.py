@@ -79,7 +79,7 @@ def create_training_data():
     for i in tqdm(range(len(originalfiles))):
         X = []
         y = []
-        originalfile = originalfiles[1][i]
+        originalfile = originalfiles[i][0]
         content = get_registry_file(originalfile)
         file_number_first = content[0].split(" ")[3][1:]
         first_file = get_clone_file(file_number_first)
