@@ -23,8 +23,7 @@ def handle_compare_files():
     if len(compare_files) == 1 and compare_files[0].filename == "":
         _, originalpath, _ = get_paths()
         # get all original files
-        compare_files = [[f, io.open(os.path.join(originalpath, f), encoding="utf-8").read()] for f in os.listdir(originalpath) if
-                         os.path.isfile(os.path.join(originalpath, f)) and ".csv" not in f]
+        compare_files = get_files(originalpath)
     else:
         [check_file(x) for x in compare_files]
         compare_files = [[x.filename, x.read().decode("utf-8")] for x in compare_files]

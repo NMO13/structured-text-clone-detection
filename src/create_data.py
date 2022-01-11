@@ -7,6 +7,11 @@ from src.ast_builder import ASTBuilder
 from src.vector_generation import create_similarity_vector, create_occurrence_list
 from src.dataloading import save_data
 
+def get_files(path):
+    import io
+    return [[f, io.open(os.path.join(path, f), encoding="utf-8").read()] for f in os.listdir(path) if
+     os.path.isfile(os.path.join(path, f)) and ".csv" not in f]
+
 def get_paths():
     data_path = os.path.join(os.environ.get("DATA_PATH"))
     originalpath = os.path.join(data_path, "original")
@@ -67,14 +72,14 @@ def add_datapoint(filenumber, creator, tokens_first, label, X, y):
 def create_training_data():
     _, originalpath, _ = get_paths()
     # get all original files
-    originalfiles = [f for f in os.listdir(originalpath) if os.path.isfile(os.path.join(originalpath, f)) and ".csv" not in f]
+    originalfiles = get_files(originalpath)
 
     creator = ASTBuilder()
 
     for i in tqdm(range(len(originalfiles))):
         X = []
         y = []
-        originalfile = originalfiles[i]
+        originalfile = originalfiles[1][i]
         content = get_registry_file(originalfile)
         file_number_first = content[0].split(" ")[3][1:]
         first_file = get_clone_file(file_number_first)

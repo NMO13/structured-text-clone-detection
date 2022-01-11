@@ -19,8 +19,9 @@ def yes_no(msg):
 def show_options():
     print("0. Neural Network")
     print("1. Principal Component Analysis")
-    print("2: Quit")
-    return [0, 1, 2]
+    print("2. t-distributed stochastic neighbor embedding")
+    print("3: Quit")
+    return [0, 1, 2, 3]
 
 def choose_selection(available_selections):
     while True:
@@ -42,6 +43,7 @@ def boot_flask_server():
 
 def process_selection(selection):
     from src.create_data import are_similarity_vectors_available
+    # neural network
     if selection == 0:
         print("### Neural Network ###")
         print("Checking for available training data...")
@@ -57,7 +59,21 @@ def process_selection(selection):
                 create_training_data()
             else:
                 raise Exception("Abort.")
+    # PCA
+    elif selection == 1:
+        from src.create_data import get_paths, get_files
+        from projection.pca import perform
+        print("### Principal Component Analysis ###")
+        _, original_path, _ = get_paths()
+        perform(get_files(original_path))
+    # t-SNE
     elif selection == 2:
+        from src.create_data import get_paths, get_files
+        from projection.tsne import perform
+        print("### t-SNE Analysis ###")
+        _, original_path, _ = get_paths()
+        perform(get_files(original_path))
+    elif selection == 3:
         raise Exception("Quit.")
 
 
