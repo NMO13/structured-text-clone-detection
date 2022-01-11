@@ -6,6 +6,17 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript" crossorigin="anonymous"></script>
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+<script>
+function doshow(checkboxElem) {
+  var x = document.getElementById("upload_comparison");
+  if (checkboxElem.checked) {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
+}
+
+</script>
 <div class="container mt-5">
     <div class="row">
         <div class="col-12">
@@ -16,7 +27,11 @@
                     <input id="first-file" type="file" name="file" class="form-control">
                 </div>
 
-                <div class="mb-3">
+                <div>
+                  <input type="checkbox" id="comparison_files" onchange="doshow(this)" name="comparison_files">
+                  <label for="comparison_files">Upload comparison files</label>
+                </div>
+                <div id="upload_comparison" class="mb-3" style="display: none;">
                     <label for="second-file" class="form-label">Choose multiple *.st files</label>
                     <input id="second-file" type="file" name="file[]" multiple="" class="form-control">
                 </div>

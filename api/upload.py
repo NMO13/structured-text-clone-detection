@@ -1,3 +1,4 @@
+import io
 import torch
 import time
 from src.ast_builder import ASTBuilder
@@ -14,6 +15,22 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def handle_compare_files():
+    import os
+    from src.create_data import get_paths
+    compare_files = request.files.getlist("file[]")
+    # if compare files were not uploaded, use the one on the file system
+    if len(compare_files) == 1 and compare_files[0].filename == "":
+        _, originalpath, _ = get_paths()
+        # get all original files
+        compare_files = [[f, io.open(os.path.join(originalpath, f), encoding="utf-8").read()] for f in os.listdir(originalpath) if
+                         os.path.isfile(os.path.join(originalpath, f)) and ".csv" not in f]
+    else:
+        [check_file(x) for x in compare_files]
+        compare_files = [[x.filename, x.read().decode("utf-8")] for x in compare_files]
+    return compare_files
+
+
 @bp.route('/', methods=("POST", "GET"))
 def upload():
     current_app.logger.info("Using {} device".format("cuda" if torch.cuda.is_available() else "cpu"))
@@ -24,9 +41,8 @@ def upload():
             if request.values["submit"] == "Upload Files":
                 basefile = request.files["file"]
                 check_file(basefile)
-                compare_files = request.files.getlist("file[]")
-                [check_file(x) for x in compare_files]
-        except:
+                compare_files = handle_compare_files()
+        except Exception as e:
             return render_template("base.html", error=True)
 
         # file is valid
@@ -71,14 +87,14 @@ def create_similarity_vectors(basetext, compare_files):
     filesizes = []
 
     for compare_file in compare_files:
-        print("comparison file: " + compare_file.filename)
+        print("comparison file: " + compare_file[0])
         start = time.time()
-        comparetext = compare_file.read().decode("utf-8")
+        #comparetext = compare_file.read().decode("utf-8")
         vector = create_similarity_vector(create_occurrence_list(tokens_base),
-                                 create_occurrence_list(creator.parse(comparetext)))
+                                 create_occurrence_list(creator.parse(compare_file[1])))
         sim_vectors.append(vector)
-        filenames.append(compare_file.filename)
-        filesizes.append(utf8len(comparetext))
+        filenames.append(compare_file[0])
+        filesizes.append(utf8len(compare_file[1]))
         exec_times.append(time.time() - start)
 
     return sim_vectors, filenames, exec_times, filesizes

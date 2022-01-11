@@ -2,14 +2,14 @@ import os
 import numpy as np
 from src.dataloading import load_data
 from src.nn.network_functions import train_net
-from src.create_data import are_similarity_vectors_available, get_st_files
+from src.create_data import are_similarity_vectors_available, get_similarity_vectors
 
 
 def train():
     print("Training neural network...")
     if not are_similarity_vectors_available():
         raise Exception("No similarity vectors found. Abort.")
-    onlyfiles = get_st_files()
+    onlyfiles = get_similarity_vectors()
 
     X = []
     y = []

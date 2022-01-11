@@ -16,10 +16,10 @@ def get_paths():
 non_parsable_counter = 0
 
 def are_similarity_vectors_available():
-    onlyfiles = get_st_files()
+    onlyfiles = get_similarity_vectors()
     return len(onlyfiles) != 0
 
-def get_st_files():
+def get_similarity_vectors():
     import pathlib
     path = pathlib.Path(__file__).parent.resolve()
     data_path = os.path.join(path, "../data")
