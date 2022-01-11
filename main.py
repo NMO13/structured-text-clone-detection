@@ -48,10 +48,7 @@ def process_selection(selection):
         print("### Neural Network ###")
         print("Checking for available training data...")
         vectors_available = are_similarity_vectors_available()
-        if vectors_available:
-            print("Training data found.")
-            boot_flask_server()
-        else:
+        if not vectors_available:
             print("Training data not found.")
             res = yes_no("Do you want to create it now?")
             if res:
@@ -59,6 +56,10 @@ def process_selection(selection):
                 create_training_data()
             else:
                 raise Exception("Abort.")
+        else:
+            print("Training data found.")
+        boot_flask_server()
+
     # PCA
     elif selection == 1:
         from src.create_data import get_paths, get_files
