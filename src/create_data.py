@@ -16,12 +16,16 @@ def get_paths():
 non_parsable_counter = 0
 
 def are_similarity_vectors_available():
+    onlyfiles = get_st_files()
+    return len(onlyfiles) != 0
+
+def get_st_files():
     import pathlib
     path = pathlib.Path(__file__).parent.resolve()
-    st_path = "../data"
-    onlyfiles = [os.path.join(path, st_path, f) for f in os.listdir(os.path.join(path, st_path)) if os.path.isfile(os.path.join(path, st_path, f))]
-
-    return len(onlyfiles) != 0
+    data_path = os.path.join(path, "../data")
+    if not os.path.isdir(data_path):
+        return []
+    return [os.path.join(data_path, f) for f in os.listdir(data_path) if os.path.isfile(os.path.join(data_path, f))]
 
 def read_registry():
     _, _, registry_path = get_paths()
@@ -60,7 +64,7 @@ def add_datapoint(filenumber, creator, tokens_first, label, X, y):
     y.append(np.array([label]))
 
 
-def main():
+def create_training_data():
     _, originalpath, _ = get_paths()
     # get all original files
     originalfiles = [f for f in os.listdir(originalpath) if os.path.isfile(os.path.join(originalpath, f)) and ".csv" not in f]
@@ -118,4 +122,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    create_training_data()

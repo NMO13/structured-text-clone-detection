@@ -44,14 +44,19 @@ def process_selection(selection):
     from src.create_data import are_similarity_vectors_available
     if selection == 0:
         print("### Neural Network ###")
-        print("Checking for available similarity vector data...")
+        print("Checking for available training data...")
         vectors_available = are_similarity_vectors_available()
         if vectors_available:
-            print("Similarity vectors were found.")
+            print("Training data found.")
             boot_flask_server()
         else:
-            print("Similarity vectors were not found.")
-            res = yes_no("Do you want to create them now?")
+            print("Training data not found.")
+            res = yes_no("Do you want to create it now?")
+            if res:
+                from src.create_data import create_training_data
+                create_training_data()
+            else:
+                raise Exception("Abort.")
     elif selection == 2:
         raise Exception("Quit.")
 
