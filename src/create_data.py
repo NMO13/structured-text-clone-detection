@@ -7,12 +7,24 @@ from src.ast_builder import ASTBuilder
 from src.vector_generation import create_similarity_vector, create_occurrence_list
 from src.dataloading import save_data
 
-data_path = os.path.join(os.environ.get("DATA_PATH"))
-originalpath = os.path.join(data_path, "original")
-registry_path = os.path.join(data_path, "registry")
+def get_paths():
+    data_path = os.path.join(os.environ.get("DATA_PATH"))
+    originalpath = os.path.join(data_path, "original")
+    registry_path = os.path.join(data_path, "registry")
+    return data_path, originalpath, registry_path
+
 non_parsable_counter = 0
 
+def are_similarity_vectors_available():
+    import pathlib
+    path = pathlib.Path(__file__).parent.resolve()
+    st_path = "../data"
+    onlyfiles = [os.path.join(path, st_path, f) for f in os.listdir(os.path.join(path, st_path)) if os.path.isfile(os.path.join(path, st_path, f))]
+
+    return len(onlyfiles) != 0
+
 def read_registry():
+    _, _, registry_path = get_paths()
     csv_file = os.path.join(registry_path, "registry.csv")
     file_dict = {}
     with open(csv_file) as csv_file:
@@ -21,14 +33,16 @@ def read_registry():
             file_dict[row["#ID"]] = row
     return file_dict
 
-registry = read_registry()
 
 def get_clone_file(filenumber):
+    registry = read_registry()
+    data_path, _, _ = get_paths()
     path_to_file = os.path.join(data_path, "originalandclones", "clones", registry[filenumber]["Filename"].strip())
     with open(path_to_file) as f:
         return f.read()
 
 def get_registry_file(filename):
+    _, _, registry_path = get_paths()
     path_to_file = os.path.join(registry_path, "TRAINED_" + filename + ".txt")
     with open(path_to_file) as f:
         return f.readlines()
@@ -47,6 +61,7 @@ def add_datapoint(filenumber, creator, tokens_first, label, X, y):
 
 
 def main():
+    _, originalpath, _ = get_paths()
     # get all original files
     originalfiles = [f for f in os.listdir(originalpath) if os.path.isfile(os.path.join(originalpath, f)) and ".csv" not in f]
 
