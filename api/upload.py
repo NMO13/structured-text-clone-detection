@@ -17,7 +17,7 @@ def allowed_file(filename):
 
 def handle_compare_files():
     import os
-    from src.create_data import get_paths
+    from src.create_data import get_paths, get_files
     compare_files = request.files.getlist("file[]")
     # if compare files were not uploaded, use the one on the file system
     if len(compare_files) == 1 and compare_files[0].filename == "":
