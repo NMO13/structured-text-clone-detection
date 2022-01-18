@@ -1,6 +1,6 @@
 # Structured Text Code Clone Detection
 This tool analyzes structured text code files and tries to find files which are highly similar. Such highly similar files are called *code clones* and the associated task of finding such clones is callled *code clone detection*.
-We implemented different algorithms in this tool in order to find type 3 code clones. Type 3 clones are syntactically similar fragments that differ at the statement level. The fragments have statements added, modified, or removed with respect to each other. Such clones indicate textual and functional similarity. [1]
+We implemented different algorithms in this tool in order to find type 3 code clones. Type 3 clones are syntactically similar fragments that differ at the statement level. The fragments have statements added, modified, or removed with respect to each other. Such clones indicate textual and functional similarity [1].
 
 have been implemented which leverage supervised and unsupervised machine learning techniques. The different algorithms will be explained in subsequent sections.
 
@@ -44,7 +44,7 @@ Step 2. **Parsing and abstract syntax tree (AST) creation.** The extracted funct
 
 Step 3: **Transformation of extracted symbols into token vectors.** This step takes the AST as input and counts the occurrence of individual AST tokens. The result is saved into a Python dictionary whereas the token names are used as keys.
 
-Step 4. **Creating similarity vectors.** In this step, we create a similarity vector between a pair of token vectors and calculate the similarity with respect to each token. This algorithm is similar to the one described in [1]. The similarity vectors are persisted as numpy binary files using pickle. 
+Step 4. **Creating similarity vectors.** In this step, we create a similarity vector between a pair of token vectors and calculate the similarity with respect to each token. This algorithm is similar to the one described in [2]. The similarity vectors are persisted as numpy binary files using pickle. 
 
 Step 5. **Performing training and Inference**. The similarity vectors are the input to all machine learning algorithms. The unsupervised methods (PCA and t-SNE) perform inference directly on these vectors. The neural network uses the vectors as training data.
 
