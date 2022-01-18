@@ -1,11 +1,11 @@
 # Structured Text Code Clone Detection
-This tool finds code clones in structured text source code files. Different algorithms have been implemented which leverage supervised and unsupervised machine learning techniques. The different algorithms will be explained in the following.
+This tool finds code clones in structured text source code files. Different algorithms have been implemented which leverage supervised and unsupervised machine learning techniques. The different algorithms will be explained in subsequent sections.
 
 It is an implementation of the paper **CCLearner: A Deep Learning-Based Clone
 Detection Approach, Liuqing Li et. al**.
 You can either use the online version available [here](https://internal.xemedo.com/code-compare/) or you can install it by yourself. Installation instructions are provided below.
 
-## Installation
+## Installation and Execution
 Installation can be performed via docker-compose or via direct execution of the Python files.
 
 ### Installation via docker-compose
@@ -22,11 +22,11 @@ Installation can be performed via docker-compose or via direct execution of the 
 5. Activate the environment `conda activate clone_detection`
 6. Run `python main.py`
 
-## Data Path
-An environment variable `DATA_PATH` must be set. This variable must point to a folder which contains the structured text files.
+### Data Path
+An environment variable `DATA_PATH` must be set. This variable must point to a data folder which contains the structured text files. The generation of the neural network input data requires the data folder to be in a specific format. This format will be explained in the *Neural Network* section.
 
 ### Execution
-If everything was done correctly, a selection menu with the implemented algorithms opens.
+If everything was done correctly, a selection menu with the implemented algorithms appears. The user can select the desired algorithm from this menu.
 
 ## Implemented algorithms
 
