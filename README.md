@@ -81,7 +81,8 @@ Furthermore, a PCA analysis is performed and depicted below the table view.
 ![image](https://user-images.githubusercontent.com/3988444/150014973-2d3b76fe-72ef-43e3-bc52-e3020824597b.png)
 
 The first linechart shows the explained variance of the principal components. Most often, the first 2-3 principal components explain over 70% of the data variance. 
-The scatter plot below shows the projected data of the first 2 principal components.
+The scatter plot below shows the projected data of the first 2 principal components. So each dot in this chart depicts a similarity vector.
+The slider under this plot acts as a filter. Moving the slider to the right filters file filters similarity vectors that exceed a probability threshold. So the more the slider is moved to the right, the more unprobable code clones are removed from the chart.
 
 
 ## 2. Principal Component Analysis
