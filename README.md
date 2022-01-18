@@ -2,7 +2,9 @@
 This tool analyzes structured text code files and tries to find files which are highly similar. Such highly similar files are called *code clones* and the associated task of finding such clones is called *code clone detection*.
 We implemented different algorithms in this tool in order to find type 3 code clones. Type 3 clones are syntactically similar fragments that differ at the statement level. The fragments have statements added, modified, or removed with respect to each other. Such clones indicate textual and functional similarity [1].
 
-This tool was mainly implemented in Python. At its current state, it comprises 3 analysing approaches: 1. a neural network based algorithm, 2. a *principal component analysis* (PCA) analysis, and 3. a *t-distributed stochastic neighbor embedding* (t-SNE) projection.
+This tool was mainly implemented in Python. At its current state, it comprises 3 analysing approaches: 1. a neural network based algorithm, 2. a *principal component analysis* (PCA) analysis, and 3. a *t-distributed stochastic neighbor embedding* (t-SNE) projection. Each of these approaches is explained in detail in the sections below.
+
+Each of these approaches needs a set of token vectors as input. The token vectors are generated out of the structured text code files. More details can be found in the section *Architecural Overview*.
 
 ## Installation and Execution
 Installation can be performed via docker-compose or via direct execution of the Python files.
