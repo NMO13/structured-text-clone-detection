@@ -1,5 +1,8 @@
 # Structured Text Code Clone Detection
-This tool finds code clones in structured text source code files. Different algorithms have been implemented which leverage supervised and unsupervised machine learning techniques. The different algorithms will be explained in subsequent sections.
+This tool analyzes structured text code files and tries to find files which are highly similar. Such highly similar files are called *code clones* and the associated task of finding such clones is callled *code clone detection*.
+We implemented different algorithms in this tool in order to find type 3 code clones. Type 3 clones are syntactically similar fragments that differ at the statement level. The fragments have statements added, modified, or removed with respect to each other. Such clones indicate textual and functional similarity. [1]
+
+have been implemented which leverage supervised and unsupervised machine learning techniques. The different algorithms will be explained in subsequent sections.
 
 It is an implementation of the paper .
 You can either use the online version available [here](https://internal.xemedo.com/code-compare/) or you can install it by yourself. Installation instructions are provided below.
@@ -102,4 +105,5 @@ Similar to the PCA implementation, the T-SNE approach takes the original source 
 
 
 ## References
-[1] **CCLearner: A Deep Learning-Based Clone Detection Approach, Liuqing Li et. al**
+[1] **Deep Learning Code Fragments for Code Clone Detection, Martin White et. al**
+[2] **CCLearner: A Deep Learning-Based Clone Detection Approach, Liuqing Li et. al**
