@@ -88,16 +88,17 @@ The slider under this plot acts as a filter. Moving the slider to the right filt
 
 
 ## 2. Principal Component Analysis
+PCA is a dimensionality reduction method that removes features in the data whereas most of the data variance is preserved.
+As described above PCA is already employed for reducing the dimensionality of the similarity vectors. Further, PCA was implemented to visualize clusters of source files directly. The source files are transformed into token vectors and thereafter, projected onto 2 dimensions. The scatter plot below shows that most of the files are classified as similar. However some outliers exist.
 
-### 
+![image](https://user-images.githubusercontent.com/3988444/150017248-76428a2e-320d-4e83-bb6a-6b7389c6293e.png)
 
+## 3. t-distributed stochastic neighbor embedding (t-SNE)
+T-SNE is similar to PCA a dimensionality reduction method. Different to PCA, T-SNE is a probabilistic algorithm and assigns a probability value to each pair of objects. The more similar a pair is the highter its probability value.
+Similar to the PCA implementation, the T-SNE approach takes the original source files and creates token vectors. The token vectors are used as input to the t-SNE algorithm. The output for the same data as in 2. is depicted in the image below. Here it becomes more obvious compared to 2. that some files are more similar and hence potential clones.
 
-## Usage
-1. Open a browser and type `localhost:5000/upload`.
-2. The webmask should open.
-3. Upload a structured text file which you want to compare.
-4. Upload multiple structured text files which you want to compare with the base file.
-5. After some seconds, the result table should appear.
+![image](https://user-images.githubusercontent.com/3988444/150018199-97df7f66-be67-4b2b-a5b1-51424dc9b262.png)
+
 
 
 ## References
