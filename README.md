@@ -25,7 +25,9 @@ Installation can be performed via docker-compose or via direct execution of the 
 An environment variable `DATA_PATH` must be set. This variable must point to a data folder which contains the structured text files. The generation of the neural network input data requires the data folder to be in a specific format. This format will be explained in the *Neural Network* section.
 
 ### Execution
-If everything was done correctly, a selection menu with the implemented algorithms appears. The user can select the desired algorithm from this menu.
+If everything was done correctly, a selection menu with the implemented algorithms appears as shown in the image below. The user can select the desired algorithm from this menu.
+![image](https://user-images.githubusercontent.com/3988444/150016096-5443f032-8c94-4c6d-9379-7109f3aabc88.png)
+
 
 ## Architecural Overview
 
