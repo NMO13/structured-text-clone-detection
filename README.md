@@ -95,7 +95,7 @@ As described above PCA is already employed for reducing the dimensionality of th
 
 ## 3. t-distributed stochastic neighbor embedding (t-SNE)
 T-SNE is similar to PCA a dimensionality reduction method. Different to PCA, T-SNE is a probabilistic algorithm and assigns a probability value to each pair of objects. The more similar a pair is the highter its probability value.
-Similar to the PCA implementation, the T-SNE approach takes the original source files and creates token vectors. The token vectors are used as input to the t-SNE algorithm. The output for the same data as in 2. is depicted in the image below. Here it becomes more obvious compared to 2. that some files are more similar and hence potential clones.
+Similar to the PCA implementation, the T-SNE approach takes the original source files and creates token vectors. The token vectors are used as input to the t-SNE algorithm. The output for the same data as in 2. is depicted in the image below. Here it becomes more obvious compared to 2. that some files are more similar and hence potential clones. For example, in the lower right corner is a cluster which comprises of the files *BIT_LOAD_B.ST*, *BIT_LOAD_B2.ST*, *BIT_LOAD_W.ST*, *BIT_LOAD_DW.ST* and *BIT_LOAD_W2.ST*. When inspecting these code files, it becomes obvious that they are indeed very similar and hence, can be categorized as clones.
 
 ![image](https://user-images.githubusercontent.com/3988444/150018199-97df7f66-be67-4b2b-a5b1-51424dc9b262.png)
 
