@@ -1,8 +1,7 @@
 # Structured Text Code Clone Detection
 This tool finds code clones in structured text source code files. Different algorithms have been implemented which leverage supervised and unsupervised machine learning techniques. The different algorithms will be explained in subsequent sections.
 
-It is an implementation of the paper **CCLearner: A Deep Learning-Based Clone
-Detection Approach, Liuqing Li et. al**.
+It is an implementation of the paper .
 You can either use the online version available [here](https://internal.xemedo.com/code-compare/) or you can install it by yourself. Installation instructions are provided below.
 
 ## Installation and Execution
@@ -28,6 +27,22 @@ An environment variable `DATA_PATH` must be set. This variable must point to a d
 ### Execution
 If everything was done correctly, a selection menu with the implemented algorithms appears. The user can select the desired algorithm from this menu.
 
+## Architecural Overview
+
+The following image depicts the workflow of our approach.
+
+![image](https://user-images.githubusercontent.com/3988444/150003726-fdd087d9-055e-4879-a310-e2d5f0c5e457.png)
+
+Step 1. **Function blocks are extracted from the structured text code files.** The extraction was implemented for files with single function blocks. This means that structured text code files with multiple function definitions cannot be analysed yet.
+
+Step 2. **Parsing and abstract syntax tree (AST) creation.** The extracted functions are parsed for syntactical correctness and subsequently transformed into an AST. We employed [pyparsing](https://github.com/pyparsing/pyparsing) for the AST creation as it is simple to use and easy to debug grammatical errors.
+
+Step 3: **Transformation of extracted symbols into token vectors.** This step takes the AST as input and counts the occurrence of individual AST tokens. The result is saved into a Python dictionary whereas the token names are used as keys.
+
+Step 4. **Creating similarity vectors.** In this step, we create a similarity vector between a pair of token vectors and calculate the similarity with respect to each token. This algorithm is similar to the one described in [1]. The similarity vectors are persisted as numpy binary files using pickle. 
+
+Step 5. **Performing training and Inference**. The similarity vectors are the input to all machine learning algorithms. The unsupervised methods (PCA and t-SNE) perform inference directly on these vectors. The neural network uses the vectors as training data.
+
 ## Implemented algorithms
 
 ### Neural Network
@@ -43,3 +58,7 @@ If everything was done correctly, a selection menu with the implemented algorith
 3. Upload a structured text file which you want to compare.
 4. Upload multiple structured text files which you want to compare with the base file.
 5. After some seconds, the result table should appear.
+
+
+## References
+[1] **CCLearner: A Deep Learning-Based Clone Detection Approach, Liuqing Li et. al**
