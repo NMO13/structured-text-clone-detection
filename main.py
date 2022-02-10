@@ -1,5 +1,7 @@
 #from api import create_app
+import os
 
+#os.environ["DATA_PATH"] = "C:/Users/AK123847/Documents/GitHub/STCloneDetection/inputtraining"
 def check_path():
     import os
     data_path = os.environ.get("DATA_PATH")
