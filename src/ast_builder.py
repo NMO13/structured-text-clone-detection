@@ -1,3 +1,6 @@
+import pyparsing
+
+
 class ASTBuilder:
     def __init__(self):
         from src.parser import parser
@@ -6,7 +9,10 @@ class ASTBuilder:
 
     def parse(self, text):
         text = self.remove_description(text)
-        text = self.remove_multiline_comments(text)
+        #text = self.remove_attributes(text)
+        test = pyparsing.nestedExpr("(*", "*)").suppress()
+        text = test.transformString(text);
+        #text = self.remove_multiline_comments(text)
         result = self.parser.parseString(text)
         result = self.resolve_method_marker(result)
         return result
@@ -43,14 +49,22 @@ class ASTBuilder:
         res = re.sub(r"\(\*([\s\S]*?)\*\)", " ", text)
         return res
 
+    def remove_attributes(self, text):
+        import re
+        res = re.sub(r"\{([\s\S]*?)\}", " ", text)
+        return res
+
     def resolve_method_marker(self, parsed_text):
         """
         Redeclare method types
         :return:
         """
-
+        #print(parsed_text)
+        #print("================================")
+        aux = 0
         new_tokens = []
         qualified_name = ""
+        #print(len(parsed_text))
         for i, token in enumerate(parsed_text):
             if token[0] == "IDENTIFIER":
                 if parsed_text[i + 1][1] == ".":

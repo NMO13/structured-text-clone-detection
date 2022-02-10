@@ -25,37 +25,62 @@ def aw(tokentype):
 def annotate(tokentype, t):
     return (tokentype, t[0]) if t else []
 
+param = Forward()
+actpars = (
+    Literal("(").setParseAction(aw("METHOD_MARKER"))
+    + Optional(param + ZeroOrMore(Literal(",").setParseAction(aw("MARKER")) + param))
+    + Literal(")").setParseAction(aw("METHOD_MARKER"))
+)
 
 semicolon = Literal(";").setParseAction(aw("MARKER"))
-ident = Word(alphas + "_", alphanums + "_").setParseAction(aw("IDENTIFIER"))
+converter = oneOf("WORD_TO_BLOCK_DB BLOCK_DB_TO_WORD TEST_DB DWORD_TO_INT WORD_TO_INT DWORD_TO_REAL BYTE_TO_BOOL BYTE_TO_CHAR CHAR_TO_BYTE CHAR_TO_INT \
+                DATE_TO_DINT DINT_TO_DATE DINT_TO_DWORD DINT_TO_INT DINT_TO_TIME DINT_TO_TOD DWORD_TO_BOOL DWORD_TO_BYTE DWORD_TO_DINT DWORD_TO_REAL DWORD_TO_WORD INT_TO_CHAR INT_TO_WORD \
+                REAL_TO_DINT REAL_TO_DWORD REAL_TO_INT STRING_TO_CHAR TIME_TO_DINT TOD_TO_DINT WORD_TO_BOOL WORD_TO_DBYTE WORD_TO_INT")
+#ident = converter + Literal("(").setParseAction(aw("MARKER")) + Word(alphas + "_", alphanums + "_").setParseAction(aw("IDENTIFIER")) + Literal(")").setParseAction(aw("MARKER")) \
+ident = converter + actpars \
+        | Optional(alphas + Literal("AT")) + Word(alphas + "_", alphanums + "_").setParseAction(aw("IDENTIFIER"))
+
+
 dtype = Word(alphas + "_", alphanums + "_").setParseAction(aw("DATATYPE"))
+
+assign_op = Literal(":=").setParseAction(aw("OPERATOR")) | Literal("=>").setParseAction(aw("OPERATOR"))
+
 expression = Forward()
+const_declaration = ident + assign_op + expression
+pragma = Literal("{").setParseAction(aw("MARKER")) + OneOrMore(const_declaration + Optional(semicolon)) + Literal("}").setParseAction(aw("MARKER"))
+
+primary_expression = Forward()
+
 designator = ident + ZeroOrMore(
     (Literal(".").setParseAction(aw("MARKER")) + ident)
     | (
         Literal("[").setParseAction(aw("MARKER"))
-        + expression
+        + OneOrMore(expression + (Optional(Literal(",")).suppress()))
         + Literal("]").setParseAction(aw("MARKER"))
     )
+    | pragma
 )
 integer = Word(nums + "_").setParseAction(aw("LITERAL"))
 
 
-assign_op = Literal(":=").setParseAction(aw("OPERATOR"))
 mulop = (Literal("*") | Literal("/") | Literal("MOD")).setParseAction(aw("OPERATOR"))
 addop = (Literal("+") | Literal("-")).setParseAction(aw("OPERATOR"))
+
 
 subrange = Combine(Word(nums) + Literal("..") + Word(nums))
 
 non_generic_type_name = dtype
-array_specification = Literal("ARRAY").setParseAction(aw("KEYWORD")) + Literal("[").setParseAction(aw("MARKER")) + subrange.setParseAction(aw("MARKER")) + ZeroOrMore(Literal(",").setParseAction(aw("MARKER")) + subrange) + Literal("]").setParseAction(aw("MARKER")) + Literal("OF").setParseAction(aw("KEYWORD")) + non_generic_type_name
+array_specification = oneOf("ARRAY Array").setParseAction(aw("KEYWORD")) + Literal("[").setParseAction(aw("MARKER")) + subrange.setParseAction(aw("MARKER")) + ZeroOrMore(Literal(",").setParseAction(aw("MARKER")) + subrange) + Literal("]").setParseAction(aw("MARKER")) + Literal("OF").setParseAction(aw("KEYWORD")) + non_generic_type_name
 
-var_init_decl = designator + ZeroOrMore(Literal(",").setParseAction(aw("MARKER")) + designator) + Optional(Keyword("AT").setParseAction(aw("KEYWORD")) + designator) + Suppress(Literal(":")) + (array_specification | (dtype + Optional(assign_op + expression)))
+struct_specification = Literal("STRUCT").setParseAction(aw("KEYWORD")) + ZeroOrMore(ident + Suppress(Literal(":")) + non_generic_type_name + semicolon) + Literal("END_STRUCT").setParseAction(aw("KEYWORD"))
+
+var_init_decl = designator + ZeroOrMore(Literal(",").setParseAction(aw("MARKER")) + designator) + Optional(Keyword("AT").setParseAction(aw("KEYWORD")) + designator) + Suppress(Literal(":")) + (struct_specification | array_specification | (dtype + Optional(assign_op + expression)))
 
 input_declaration = var_init_decl
 
+
 var_decl = (
-    oneOf("VAR_INPUT VAR_OUTPUT VAR_IN_OUT VAR VAR_EXTERNAL").setParseAction(aw("KEYWORD"))
+    oneOf("VAR_INPUT VAR_OUTPUT VAR_IN_OUT VAR VAR_TEMP VAR_EXTERNAL").setParseAction(aw("KEYWORD"))
     + Optional(
         Literal("CONSTANT").setParseAction(aw("KEYWORD"))
         | Literal("RETAIN").setParseAction(aw("KEYWORD"))
@@ -67,6 +92,30 @@ var_decl = (
     )
     + Keyword("END_VAR").setParseAction(aw("KEYWORD"))
 )
+
+const_decl = (
+    Keyword("CONST").setParseAction(aw("KEYWORD"))
+    + Optional(
+        Literal("CONSTANT").setParseAction(aw("KEYWORD"))
+        | Literal("RETAIN").setParseAction(aw("KEYWORD"))
+        | Literal("NON_RETAIN").setParseAction(aw("KEYWORD"))
+    )
+    + ZeroOrMore(
+        const_declaration
+        + semicolon
+    )
+    + Keyword("END_CONST").setParseAction(aw("KEYWORD"))
+)
+
+label_decl = (
+    Keyword("LABEL").setParseAction(aw("KEYWORD"))
+    + ZeroOrMore(
+        ident + semicolon
+    )
+    + Keyword("END_LABEL").setParseAction(aw("KEYWORD"))
+)
+
+
 relop = (Literal(">=") | Literal(">") | Literal("<=") | Literal("<")).setParseAction(
     aw("OPERATOR")
 )
@@ -77,17 +126,12 @@ arithmeticop = (
     Literal("+") | Literal("-") | Literal("*") | Literal("/")
 ).setParseAction(aw("OPERATOR"))
 
-param = Forward()
-actpars = (
-    Literal("(").setParseAction(aw("METHOD_MARKER"))
-    + Optional(param + ZeroOrMore(Literal(",").setParseAction(aw("MARKER")) + param))
-    + Literal(")").setParseAction(aw("METHOD_MARKER"))
-)
+
 
 signed_real_number = Optional("-") + Word(nums) + Optional(
         Literal(".")
         + Word(nums)
-        + Optional(Literal("E") + Optional(Literal("-")) + Word(nums))
+        + Optional(oneOf("E e") + Optional(oneOf("- +")) + Word(nums))
     )
 signed_integer = Optional(oneOf("+ -")) + Word(nums)
 binary_integer = "2#" + Word("10_")
@@ -113,12 +157,20 @@ constant = (
     | boolean_literal
 )
 
-primary_expression = (
+blockattr_decl = (
+    Literal("VERSION").setParseAction(aw("KEYWORD")) + Literal(":").setParseAction(aw("KEYWORD")) + constant
+    | oneOf("AUTHOR FAMILY NAME").setParseAction(aw("KEYWORD")) + Literal(":").setParseAction(aw("KEYWORD")) + ( ident | constant)
+    | Literal("TITLE").setParseAction(aw("KEYWORD")) + Literal("=").setParseAction(aw("KEYWORD")) + constant
+    | Literal("KNOW_HOW_PROTECT").setParseAction(aw("KEYWORD"))
+)
+
+
+primary_expression << (
     constant.setParseAction(aw("LITERAL"))
     | Combine(
         oneOf("DATE TOD DATE_AND_TIME DT t")
         + Literal("#")
-        + Word(alphanums + "_" + "-" + "#" + ".")
+        + Word(alphanums + "_" + "-" + "#" + "." + ":")
     ).setParseAction(aw("LITERAL"))
     | (designator + Optional(actpars))
     | (
@@ -191,17 +243,17 @@ case_list_element = subrange | Word(nums) | enumerated_value
 case_list = case_list_element + ZeroOrMore("," + case_list_element)
 case_element = case_list.setParseAction(aw("MARKER")) + Suppress(Literal(":")) + block
 for_list = expression + Keyword("TO").setParseAction(aw("KEYWORD")) + expression + Optional(Keyword("BY").setParseAction(aw("KEYWORD")) + expression)
-exit_statement = Keyword("EXIT").setParseAction(aw("KEYWORD"))
+exit_statement = oneOf("EXIT Exit exit").setParseAction(aw("KEYWORD"))
 
 statement << (
-    (
+    (designator + ((assign_op + expression) | actpars) + semicolon)
+    | (
         Keyword("REPEAT").setParseAction(aw("KEYWORD"))
         + block
         + Keyword("UNTIL").setParseAction(aw("KEYWORD"))
         + expression
         + Keyword("END_REPEAT").setParseAction(aw("KEYWORD"))
     )
-    | (designator + ((assign_op + expression) | actpars) + semicolon)
     | (
         Keyword("FOR").setParseAction(aw("KEYWORD"))
         + ident
@@ -236,7 +288,7 @@ statement << (
         + semicolon
     )
     | (
-        Keyword("CASE").setParseAction(aw("KEYWORD"))
+        (oneOf("CASE Case case")).setParseAction(aw("KEYWORD"))
         + expression
         + Keyword("OF").setParseAction(aw("KEYWORD"))
         + OneOrMore(case_element)
@@ -246,16 +298,24 @@ statement << (
     )
     | (Keyword("RETURN").setParseAction(aw("KEYWORD")) + semicolon)
     | exit_statement + semicolon
+    | ident + Literal(":").suppress() + semicolon
+    | (Keyword("GOTO").setParseAction(aw("KEYWORD")) + ident + semicolon)
     | semicolon
 )
 
-parser = (
-    (
-        Keyword("PROGRAM") | Keyword("FUNCTION_BLOCK") | Keyword("FUNCTION")
-    ).setParseAction(aw("KEYWORD"))
-    + ident
-    + Optional(Suppress(":") + ident)
-    + ZeroOrMore(var_decl)
-    + ZeroOrMore(statement)
+
+
+function_block = (Keyword("PROGRAM") | Keyword("FUNCTION_BLOCK") | Keyword("FUNCTION")).setParseAction(aw("KEYWORD"))\
+    + ident \
+    + Optional(Suppress(":") + ident) \
+    + ZeroOrMore(blockattr_decl) \
+    + ZeroOrMore(pragma) \
+    + ZeroOrMore(var_decl) \
+    + ZeroOrMore(const_decl) \
+    + ZeroOrMore(label_decl) \
+    + Optional(Keyword("BEGIN")).setParseAction(aw("KEYWORD")) \
+    + ZeroOrMore(statement) \
     + oneOf("END_PROGRAM END_FUNCTION_BLOCK END_FUNCTION").setParseAction(aw("KEYWORD"))
-).ignore(dblSlashComment)
+
+
+parser = (ZeroOrMore(pragma) + OneOrMore(function_block)).ignore(dblSlashComment)
